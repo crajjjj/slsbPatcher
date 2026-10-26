@@ -15,8 +15,8 @@ for every SLAL pack:
   community `slsb-convert.py` dev environment, and Scene Builder 3 writes the registry, the
   FNIS list and the behavior files.
 
-Everything goes into one output folder that you install as a mod. Your packs and your other
-mods are never changed.
+Everything goes into one output folder, a mod of its own (installed in MO2, slsbPatcher makes it
+for you). Your packs and your other mods are never changed.
 
 ## What you need
 
@@ -26,44 +26,73 @@ mods are never changed.
   hkxconv, no base game copy, no Python).
 * Pandora or Nemesis, run after any slsbPatcher run that converted a pack.
 
-## Use
+## Install in MO2
 
-Double-click `slsbPatcher.exe` (or drop your MO2 profile folder onto it) to open its window:
+Set it up like Pandora:
 
-1. **Load order**: add your MO2 profile folder (for example `MO2\profiles\Default`), a Data
-   folder, or a folder of extracted SLAL packs.
-2. **Preview** reads everything and shows what a run would do. Nothing is written yet.
-3. Look through the tabs and change what you need:
-   * **Summary**: what gets patched and converted. The tree opens up mod by mod, registry by
-     registry and scene by scene, down to every tag added or removed and the action log it
-     came from.
-   * **SLAL packs**: every SLAL json in the load order, how many of its animations an
-     installed registry already holds, and what happens to it. Tick **Re-convert** to build a
-     pack's registry again (see below).
-   * **Action logs**: the logs installed in the load order and any you add (Hentairim tag
-     logs, for example). Untick a log to leave it out.
-   * **Options**: patch and convert on or off, P+ official tags, converter settings.
-4. **Run** writes the output folder. Install it as a mod with the highest priority (MO2: the
-   bottom of the left pane; Vortex: load it after everything), then run Pandora if the summary
-   says it converted something.
+1. Install the release zip with MO2 like any other mod (*Install a new mod from an archive*),
+   named `slsbPatcher`. It is a tool, so MO2 may say the archive holds no game data: install it
+   anyway, and **tick it in the left pane**. MO2 only runs a program that sits inside a mod
+   when that mod is enabled (Pandora is installed the same way).
+2. Add it as an executable: *Tools > Executables* (the gear icon), `+`, *Add from file*, and pick
+   `<MO2>\mods\slsbPatcher\slsbPatcher.exe`. No arguments are needed. Leave *Create files in mod
+   instead of overwrite* off: slsbPatcher writes its own mod.
+3. Start *slsbPatcher* from MO2's executable list. It finds the MO2 it is installed in, reads
+   the profile MO2 has selected and writes the mod **`slsbPatcher Output`**. It previews at once:
+   look at the report, untick what you want left alone, press **Run**, and close slsbPatcher.
+4. MO2 now lists `slsbPatcher Output`. The first time, enable it and move it to the bottom of
+   the left pane. If the summary says packs were converted, run Pandora afterwards.
 
-The window remembers its settings, so the next run is Preview, then Run.
+Next time it is steps 3 and 4 only: slsbPatcher replaces `slsbPatcher Output` on every run and
+always reads the original files, never its own earlier output. Nothing in your other mods is
+changed; to go back, disable `slsbPatcher Output`.
 
-From a command prompt, `slsbPatcher-cli.exe` does the same work without the window:
+For runs without the window, add `slsbPatcher-cli.exe` the same way. Started with no
+arguments, it does a full run on the selected profile and waits for Enter before it closes.
+
+## The window
+
+It is laid out like Pandora. On the left, everything the run can touch, each row with a tick
+box; on the right, the report; at the bottom, one big **Run** button.
+
+* **SLAL packs and registries**: every SLAL json in the load order (and every registry that no
+  installed SLAL json is the source of, such as a hand-made or carried-over conversion), with
+  its mod, its number of animations, and what the run does with it: *patched*, *up to date*,
+  *no registry: converted*, *left alone*. Untick a row to leave that pack alone: it is not
+  converted, and the registry made from it is not patched. Right-click a pack for
+  **Re-convert** (see below).
+* **SLATE action logs**: the logs installed in the load order, with how many `AddTag` and
+  `RemoveTag` lines they hold and what they change. Untick a log to leave it out. Add other
+  logs (Hentairim tag logs, for example) under *Menu > Options*.
+* The tick box in a column header ticks or unticks every row shown; the search box at the top
+  filters both lists.
+* **Report** shows the summary and then the details of what a run would do, refreshed after
+  every tick. **Changes** opens the same up mod by mod, registry by registry and scene by
+  scene, down to every tag added or removed and the action log it came from.
+* **Run** writes the output. The status line under the lists says where it went and what to
+  do next (install it, close slsbPatcher for MO2, run Pandora).
+
+*Menu > Options* holds the load order (an MO2 instance or profile folder, a Data folder, or a
+folder of extracted SLAL packs; or drop such a folder onto `slsbPatcher.exe`), extra action
+logs, patch and convert on or off, P+ official tags, the converter settings and the output
+folder. The window remembers everything, ticks included, in `slsbPatcher.settings.json` beside
+the exe, so the next time it opens it previews at once and Run is one click.
+
+## Command line
+
+`slsbPatcher-cli.exe` does the same work without the window:
 
 ```
+slsbPatcher-cli
 slsbPatcher-cli "C:\Modding\MO2\profiles\Default"
 slsbPatcher-cli "C:\Modding\MO2\profiles\Default" --logs "D:\Hentairim Tags" --skip-log "SLATE_ActionLog - OsmelMC.json"
 slsbPatcher-cli "D:\Extracted SLAL Packs" --logs "D:\SLATE logs" --out "D:\My Conversion"
 slsbPatcher-cli "C:\Games\Skyrim Special Edition\Data"
 ```
 
-Run it again whenever a log or a pack changes. It skips its own earlier output while reading,
-so the new output is always made from the original files; just replace the old output mod with
-the new one.
-
-Add `--dry-run` to see the report without writing anything, and `--summary` to print only its
-summary. The report is also saved in the output as `slsbPatcher/report.txt`.
+Without a folder it uses the MO2 it is installed in. Add `--dry-run` to see the report without
+writing anything, and `--summary` to print only its summary. The report is also saved in the
+output as `slsbPatcher/report.txt`.
 
 ## The report
 
@@ -161,13 +190,15 @@ one) stay in the FNIS list, but Scene Builder 3's behavior generator does not ac
 
 | Option | |
 |---|---|
-| `-o`, `--out DIR` | output folder (default: `slsbPatcher Output` in the current folder) |
+| `-o`, `--out DIR` | output folder (default: the mod `slsbPatcher Output` when installed in MO2, else `slsbPatcher Output` in the current folder) |
 | `-l`, `--logs PATH` | extra action log file or folder, e.g. Hentairim tag logs; repeatable |
 | `--skip-log NAME` | ignore an installed action log by file name; repeatable |
 | `--no-installed-logs` | ignore every action log found in the inputs |
 | `--official-tags` | also patch lines naming P+ official tags |
 | `--no-convert` | only patch existing registries |
 | `--no-patch` | only convert packs that have no registry |
+| `--skip-pack NAME` | leave this SLAL json alone: not converted, its registry not patched; repeatable |
+| `--skip-registry NAME` | leave this registry (.slr name or path) alone; repeatable |
 | `--reconvert NAME` | convert a SLAL json (file name or stem), or a whole mod, even though a registry covers it |
 | `-u`, `--update DIR` | folder of `*.slsb.json` from an earlier conversion, to keep its hash and ids |
 | `--author NAME` | pack author written into new conversions |

@@ -188,6 +188,81 @@ class EngineTests(unittest.TestCase):
             self.assertEqual((again.written, again.patched), (0, []))
 
 
+class SkipTests(unittest.TestCase):
+    def test_unticked_pack_and_registry_are_left_alone(self):
+        from slsbpatcher import engine
+        with tempfile.TemporaryDirectory() as tmp:
+            data = Path(tmp, "Data")
+            registry = data / "SKSE" / "SexLab" / "Registry" / "Pack.slr"
+            registry.parent.mkdir(parents=True)
+            registry.write_bytes(SAMPLE)
+            slal = data / "SLAnims" / "json" / "Pack.json"
+            slal.parent.mkdir(parents=True)
+            slal.write_text(json.dumps({"name": "Pack", "animations": [
+                {"name": "Billyy Doggy", "tags": "billyy", "actors": [
+                    {"type": "female", "stages": [{"id": "B_Doggy_A1_S1"}, {"id": "B_Doggy_A1_S2"}]},
+                    {"type": "male", "stages": [{"id": "B_Doggy_A2_S1"}, {"id": "B_Doggy_A2_S2"}]}]}]}))
+            log = data / "SKSE" / "Plugins" / "SLATE" / "SLATE_ActionLog - Test.json"
+            log.parent.mkdir(parents=True)
+            log.write_text(json.dumps({"stringList": {"slate.actionlog": ["AddTag,Billyy Doggy,NymTag"]}}))
+            found = engine.scan([data], [])
+            self.assertEqual(found.registry_sources(), {0: [0]})
+
+            base = dict(inputs=[data], out=Path(tmp, "out"), convert=False, dry_run=True)
+            self.assertEqual(len(engine.execute(engine.Options(**base), found).patched), 1)
+            skipped = engine.execute(engine.Options(**base, skip_packs=["Pack.json"]), found)
+            self.assertEqual((skipped.patched, skipped.left_alone_packs, skipped.left_alone_registries),
+                             ([], ["Pack.json"], ["SKSE/SexLab/Registry/Pack.slr"]))
+            self.assertIn("Left alone (unticked): 1 SLAL pack, 1 registry.", "\n".join(skipped.summary))
+            by_registry = engine.execute(engine.Options(**base, skip_registries=["pack.slr"]), found)
+            self.assertEqual((by_registry.patched, by_registry.left_alone_registries), ([], ["SKSE/SexLab/Registry/Pack.slr"]))
+
+
+class Mo2Tests(unittest.TestCase):
+    def test_installed_as_a_mod_and_vfs_merged_data(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            mo2, game = root / "MO2", root / "Game Root"
+            mo2.mkdir()
+            (mo2 / "ModOrganizer.ini").write_text(
+                "[General]\ngamePath=@ByteArray(" + str(game).replace("\\", "\\\\") + ")\n"
+                "selected_profile=@ByteArray(Main)\n", encoding="utf-8")
+            (mo2 / "profiles" / "Main").mkdir(parents=True)
+            # modlist.txt lists the highest priority first
+            (mo2 / "profiles" / "Main" / "modlist.txt").write_text(
+                "+slsbPatcher Output\n+PackA\n-Disabled\n+Tools_separator\n", encoding="utf-8")
+            exe = mo2 / "mods" / "slsbPatcher" / "slsbPatcher.exe"
+            exe.parent.mkdir(parents=True)
+            exe.write_bytes(b"")
+
+            def put(folder, rel, data=b"x"):
+                path = folder / rel
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(data)
+            put(mo2 / "mods" / "PackA", "SKSE/SexLab/Registry/A.slr", b"pack")
+            out = mo2 / "mods" / "slsbPatcher Output"
+            put(out, "SKSE/SexLab/Registry/A.slr", b"patched")
+            put(out, "SKSE/SexLab/Registry/New.slr", b"converted")
+            put(out, "slsbPatcher/manifest.json", b"{}")
+            # The game's Data folder as MO2's VFS shows it: every enabled mod merged, plus a real file.
+            data = game / "Data"
+            put(data, "SKSE/SexLab/Registry/A.slr", b"patched")
+            put(data, "SKSE/SexLab/Registry/New.slr", b"converted")
+            put(data, "SKSE/SexLab/Registry/Real.slr", b"real")
+            put(data, "slsbPatcher/manifest.json", b"{}")
+
+            instance = gamedata.mo2_instance_of(exe)
+            self.assertEqual((instance.folder, instance.selected_profile()), (mo2, "Main"))
+            self.assertIsNone(gamedata.mo2_instance_of(root))
+
+            loaded = gamedata.load([mo2])
+            self.assertEqual([layer.name for layer in loaded.layers], ["(game Data)", "PackA"])
+            self.assertEqual([layer.name for layer in loaded.skipped_outputs], ["slsbPatcher Output"])
+            winners = {w.rel: (w.layer.name, w.path.read_bytes()) for w in loaded.files("skse/sexlab/registry/", ".slr")}
+            self.assertEqual(winners, {"SKSE/SexLab/Registry/A.slr": ("PackA", b"pack"),
+                                       "SKSE/SexLab/Registry/Real.slr": ("(game Data)", b"real")})
+
+
 class GameDataTests(unittest.TestCase):
     def test_layers_and_winners(self):
         with tempfile.TemporaryDirectory() as tmp:

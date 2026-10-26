@@ -1,6 +1,7 @@
 import sys
 from pathlib import Path
 
+from . import install
 from .cli import main
 from .console import pause, started_from_explorer
 
@@ -22,7 +23,7 @@ def run(window_without_args: bool = True) -> int:
             return 2
         return launch([Path(arg) for arg in args if arg != "--gui"])
     explorer = started_from_explorer()
-    if not args:
+    if not args and not install.mo2():  # installed in MO2, no arguments means "that MO2"
         print(CLI_HINT)
         if explorer:
             pause()

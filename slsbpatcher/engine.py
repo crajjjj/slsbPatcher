@@ -44,6 +44,8 @@ class Options:
     scene_builder: str | None = None
     zip: bool = False
     dry_run: bool = False
+    skip_packs: list[str] = field(default_factory=list)       # SLAL json names (or stems) to leave alone
+    skip_registries: list[str] = field(default_factory=list)  # registry paths or file names to leave alone
 
 
 @dataclass
@@ -81,6 +83,15 @@ class Scan:
     slal: list[SlalJson]
     problems: list[str]
     seconds: float = 0.0
+
+    def registry_sources(self) -> dict[int, list[int]]:
+        """For each registry (by index), the SLAL jsons (by index) it is the main registry of."""
+        sources: dict[int, list[int]] = {}
+        for index, item in enumerate(self.slal):
+            main = item.main_registry()
+            if main is not None:
+                sources.setdefault(main, []).append(index)
+        return sources
 
 
 @dataclass
@@ -122,6 +133,8 @@ class Outcome:
     produced: list[convert.Produced] = field(default_factory=list)
     would_convert: list[tuple[str, str]] = field(default_factory=list)  # (json, mod) in a preview
     partial: list[Partial] = field(default_factory=list)
+    left_alone_packs: list[str] = field(default_factory=list)       # unticked SLAL jsons
+    left_alone_registries: list[str] = field(default_factory=list)  # unticked registries (rel paths)
     unmatched: list[str] = field(default_factory=list)
     skipped_official: int = 0
     problems: list[str] = field(default_factory=list)
@@ -274,11 +287,29 @@ def execute(options: Options, found: Scan | None = None) -> Outcome:
     outcome.logs = logs.files
     outcome.skipped_official = sum(f.official_tags for f in logs.files)
 
-    # Decide: patch what a registry covers, convert what nothing covers.
+    # Decide: patch what a registry covers, convert what nothing covers, leave the unticked alone.
     to_convert: dict[int, convert.Job] = {}
     replaced: dict[int, str] = {}  # registry index -> json it is re-converted from
     all_events = set().union(*(registry.parsed.events() for registry in registries)) if registries else set()
+    sources = found.registry_sources()
+    skipped_packs = {name.lower() for name in options.skip_packs}
+    skipped_registries = {name.lower() for name in options.skip_registries}
+
+    def pack_skipped(item: SlalJson) -> bool:
+        return item.winner.path.name.lower() in skipped_packs or item.winner.path.stem.lower() in skipped_packs
+
+    def registry_skipped(index: int) -> bool:
+        """Named outright, or the registry of SLAL jsons that are all left alone."""
+        registry = registries[index]
+        if registry.winner.rel.lower() in skipped_registries or registry.winner.path.name.lower() in skipped_registries:
+            return True
+        owners = sources.get(index, [])
+        return bool(owners) and all(pack_skipped(slal[i]) for i in owners)
+
     for item in slal:
+        if pack_skipped(item):
+            outcome.left_alone_packs.append(item.winner.path.name)
+            continue
         reconvert = item.matches(options.reconvert)
         if item.covered and not reconvert:
             if item.covered < len(item.animations):
@@ -309,6 +340,9 @@ def execute(options: Options, found: Scan | None = None) -> Outcome:
     if options.patch:
         for index, registry in enumerate(registries):
             if index in replaced:
+                continue
+            if registry_skipped(index):
+                outcome.left_alone_registries.append(registry.winner.rel)
                 continue
             patched, applied = patcher.patch_slr(registry.data, ops)
             matched |= applied.matched
@@ -424,6 +458,10 @@ def summarize(o: Outcome, layers: int, reconverted: bool, seconds: float) -> lis
     else:
         lines.append(f"  Nothing to patch: all {_plural(o.registries, 'registry', 'registries')} already match the logs.")
 
+    if o.left_alone_packs or o.left_alone_registries:
+        lines.append(f"  Left alone (unticked): {_plural(len(o.left_alone_packs), 'SLAL pack')}, "
+                     f"{_plural(len(o.left_alone_registries), 'registry', 'registries')}.")
+
     if o.produced:
         scenes = sum(len(p.scenes) for p in o.produced)
         lines.append(f"  Converted {_plural(len(o.produced), 'SLAL json')} into new registries ({_plural(scenes, 'scene')}):")
@@ -472,6 +510,8 @@ def summarize(o: Outcome, layers: int, reconverted: bool, seconds: float) -> lis
 
 def _details(o: Outcome, data: gamedata.GameData, replaced: dict[int, str]) -> list[str]:
     lines = ["DETAILS", "", f"Inputs: {', '.join(str(p) for p in o.options.inputs)} ({len(data.layers)} mods/folders)"]
+    if gamedata.under_mo2_vfs():
+        lines.append("  started from MO2: its virtual file system is active")
     for layer in data.skipped_outputs:
         lines.append(f"  skipped {layer.name}: an earlier slsbPatcher output, so its originals are patched instead")
     lines += ["", f"Action logs: {len(o.logs)}"]
@@ -488,7 +528,11 @@ def _details(o: Outcome, data: gamedata.GameData, replaced: dict[int, str]) -> l
             lines.append(f"      and its project {p.project_rel}")
     if o.options.patch:
         lines.append(f"  {o.up_to_date} already up to date")
+    for rel in o.left_alone_registries:
+        lines.append(f"  {rel}: left alone (unticked)")
     lines += ["", "SLAL animation jsons:"]
+    for name in o.left_alone_packs:
+        lines.append(f"  {name}: left alone (unticked)")
     for p in o.produced:
         lines.append(f"  converted {p.json_name} ({p.module}) -> {p.slr_rel}, {len(p.scenes)} scenes")
     for name, mod in o.would_convert:
