@@ -113,7 +113,7 @@ def _interesting_files(root: Path):
                 yield path
 
 
-def _looks_like_data(folder: Path) -> bool:
+def looks_like_data(folder: Path) -> bool:
     return any(_child(folder, name) for name in ("SLAnims", "SKSE", "meshes"))
 
 
@@ -195,7 +195,7 @@ def layers_for_input(folder: Path) -> list[Layer]:
     mo2 = mo2_layers(folder)
     if mo2 is not None:
         return mo2
-    if _looks_like_data(folder):
+    if looks_like_data(folder):
         return [Layer(folder.name, folder)]
     layers = []
     for dirpath, dirnames, _ in os.walk(folder):

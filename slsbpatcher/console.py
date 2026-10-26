@@ -7,13 +7,17 @@ from pathlib import Path
 
 
 def started_from_explorer() -> bool:
-    """True when this process owns its console window, i.e. nobody ran it from a prompt."""
+    """True when no shell shares this console, i.e. nobody ran the exe from a prompt.
+
+    A one-file PyInstaller exe is two processes on the console (the bootloader and the
+    program); from a prompt the shell is a third.
+    """
     if os.name != "nt" or not getattr(sys, "frozen", False):
         return False
     try:
         import ctypes
-        processes = (ctypes.c_uint32 * 4)()
-        return ctypes.windll.kernel32.GetConsoleProcessList(processes, 4) <= 1
+        processes = (ctypes.c_uint32 * 8)()
+        return ctypes.windll.kernel32.GetConsoleProcessList(processes, 8) <= 2
     except (AttributeError, OSError):
         return False
 
@@ -27,16 +31,3 @@ def pause() -> None:
         input("\nPress Enter to close this window.")
     except EOFError:
         pass
-
-
-HOW_TO = """slsbPatcher patches SexLab P+ scene registries with SLATE action logs and converts
-SLAL animation packs that have no SLSB conversion yet.
-
-Drop a folder onto slsbPatcher.exe:
-  * your MO2 profile folder (for example  MO2\\profiles\\Default), or
-  * a folder holding extracted SLAL packs.
-The result lands in "slsbPatcher Output" next to slsbPatcher.exe.
-
-For every option (extra Hentairim logs, skipping a log, re-converting a pack), run it from
-a command prompt:  slsbPatcher.exe --help
-"""

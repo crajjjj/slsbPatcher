@@ -21,32 +21,70 @@ mods are never changed.
 ## What you need
 
 * SexLab P+ 2.17 or newer.
-* Windows. The release zip holds `slsbPatcher.exe` and `scene_builder_cli.exe`; nothing else
-  is needed (no FNIS for Modders, no hkxconv, no base game copy, no Python).
+* Windows. The release zip holds `slsbPatcher.exe` (the window), `slsbPatcher-cli.exe` (the
+  command line) and `scene_builder_cli.exe`; nothing else is needed (no FNIS for Modders, no
+  hkxconv, no base game copy, no Python).
 * Pandora or Nemesis, run after any slsbPatcher run that converted a pack.
 
 ## Use
 
-Drop your **MO2 profile folder** (for example `MO2\profiles\Default`) onto `slsbPatcher.exe`.
-The result is written to `slsbPatcher Output` next to the exe. Install that folder as a mod
-with the highest priority (MO2: the bottom of the left pane; Vortex: load it after
-everything), then run Pandora if the report says it converted something.
+Double-click `slsbPatcher.exe` (or drop your MO2 profile folder onto it) to open its window:
 
-From a command prompt you have every option:
+1. **Load order**: add your MO2 profile folder (for example `MO2\profiles\Default`), a Data
+   folder, or a folder of extracted SLAL packs.
+2. **Preview** reads everything and shows what a run would do. Nothing is written yet.
+3. Look through the tabs and change what you need:
+   * **Summary**: what gets patched and converted. The tree opens up mod by mod, registry by
+     registry and scene by scene, down to every tag added or removed and the action log it
+     came from.
+   * **SLAL packs**: every SLAL json in the load order, how many of its animations an
+     installed registry already holds, and what happens to it. Tick **Re-convert** to build a
+     pack's registry again (see below).
+   * **Action logs**: the logs installed in the load order and any you add (Hentairim tag
+     logs, for example). Untick a log to leave it out.
+   * **Options**: patch and convert on or off, P+ official tags, converter settings.
+4. **Run** writes the output folder. Install it as a mod with the highest priority (MO2: the
+   bottom of the left pane; Vortex: load it after everything), then run Pandora if the summary
+   says it converted something.
+
+The window remembers its settings, so the next run is Preview, then Run.
+
+From a command prompt, `slsbPatcher-cli.exe` does the same work without the window:
 
 ```
-slsbPatcher "C:\Modding\MO2\profiles\Default"
-slsbPatcher "C:\Modding\MO2\profiles\Default" --logs "D:\Hentairim Tags" --skip-log "SLATE_ActionLog - OsmelMC.json"
-slsbPatcher "D:\Extracted SLAL Packs" --logs "D:\SLATE logs" --out "D:\My Conversion"
-slsbPatcher "C:\Games\Skyrim Special Edition\Data"
+slsbPatcher-cli "C:\Modding\MO2\profiles\Default"
+slsbPatcher-cli "C:\Modding\MO2\profiles\Default" --logs "D:\Hentairim Tags" --skip-log "SLATE_ActionLog - OsmelMC.json"
+slsbPatcher-cli "D:\Extracted SLAL Packs" --logs "D:\SLATE logs" --out "D:\My Conversion"
+slsbPatcher-cli "C:\Games\Skyrim Special Edition\Data"
 ```
 
 Run it again whenever a log or a pack changes. It skips its own earlier output while reading,
 so the new output is always made from the original files; just replace the old output mod with
 the new one.
 
-Add `--dry-run` to see the report without writing anything. The report is also saved in the
-output as `slsbPatcher/report.txt`.
+Add `--dry-run` to see the report without writing anything, and `--summary` to print only its
+summary. The report is also saved in the output as `slsbPatcher/report.txt`.
+
+## The report
+
+It starts with a summary:
+
+```
+SUMMARY
+  Read 2 action logs (3564 lines) and 69 registries from 2330 mods.
+  Patched 9 of 69 registries: 4 tags added, 12 removed, in 16 scenes.
+    By mod:
+      [NoDelete][9810] Automated SLSB Conversions - Hentairim v1.3: 6 registries, +2 -11
+      [NoDelete][9811] Automated SLSB Conversions - FB Milky Nibbles: 3 registries, +2 -1
+    By action log:
+      SLATE_ActionLog - Nymra.json: no changes (already in the registries, or for scenes not installed)
+      SLATE_ActionLog - OsmelMC.json: +4 -12
+    Tags: -furniture x8, +furniture x2, +vampire x2, -futa x2, -.behind x1, -femdom x1
+  3 SLAL jsons are only partly converted (67 animations in no registry; re-convert to add them): ...
+```
+
+then the details: every registry with each tag change, its scene and its log, the conversions,
+the scenes named in the logs that are not installed, and any problems.
 
 ## Inputs
 
@@ -73,8 +111,8 @@ Only loose files are read. A pack packed into a BSA is not seen.
 
 When an installed registry plays one of its animation events. A SLAL json counts as converted
 as soon as any of its animations is in a registry. If only some are, the report lists the rest:
-that usually means the pack was updated after the conversion was made. `--reconvert <json>`
-converts it again, keeping the old registry's pack hash, scene ids and stage ids, and writes the
+that usually means the pack was updated after the conversion was made. Re-convert (the tick box
+in the window, `--reconvert <json>` on the command line) converts it again, keeping the old registry's pack hash, scene ids and stage ids, and writes the
 new registry over the old one.
 
 A re-conversion takes its tags from the SLAL json and the action logs given in that run only.
@@ -123,7 +161,7 @@ one) stay in the FNIS list, but Scene Builder 3's behavior generator does not ac
 
 | Option | |
 |---|---|
-| `-o`, `--out DIR` | output folder (default: `slsbPatcher Output` in the current folder, or next to the exe when started from Explorer) |
+| `-o`, `--out DIR` | output folder (default: `slsbPatcher Output` in the current folder) |
 | `-l`, `--logs PATH` | extra action log file or folder, e.g. Hentairim tag logs; repeatable |
 | `--skip-log NAME` | ignore an installed action log by file name; repeatable |
 | `--no-installed-logs` | ignore every action log found in the inputs |
@@ -136,6 +174,7 @@ one) stay in the FNIS list, but Scene Builder 3's behavior generator does not ac
 | `--stricter-futa` | `slsb-convert.py -sf` |
 | `--zip` | also pack the output into a zip beside it |
 | `-n`, `--dry-run` | report only |
+| `-s`, `--summary` | print only the summary of the report |
 | `--scene-builder EXE` | a different `scene_builder_cli.exe` |
 
 ## Building from source
@@ -144,10 +183,11 @@ one) stay in the FNIS list, but Scene Builder 3's behavior generator does not ac
 git clone --recurse-submodules https://github.com/crajjjj/slsbPatcher
 cd slsbPatcher
 py scripts/build.py --no-exe        # builds bin/scene_builder_cli.exe (Rust 1.95+) and runs the tests
-py -m slsbpatcher --help            # Python 3.10+
+py -m slsbpatcher                   # the window (Python 3.10+ with tkinter)
+py -m slsbpatcher --help            # the command line
 ```
 
-`py scripts/build.py` also builds `slsbPatcher.exe` with PyInstaller (from a `.venv` in the repo)
+`py scripts/build.py` also builds `slsbPatcher.exe` and `slsbPatcher-cli.exe` with PyInstaller (from a `.venv` in the repo)
 and packs `Release/slsbPatcher-<version>.zip`.
 
 ## Credits and license

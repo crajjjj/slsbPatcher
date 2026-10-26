@@ -43,8 +43,9 @@ def find(explicit: str | None = None) -> Path:
 
 
 def run(exe: Path, *args: str | Path) -> str:
+    flags = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0  # no console flashing up over the window
     result = subprocess.run([str(exe), *map(str, args)], capture_output=True, text=True,
-                            encoding="utf-8", errors="replace")
+                            encoding="utf-8", errors="replace", creationflags=flags)
     output = (result.stdout + result.stderr).strip()
     if result.returncode != 0:
         raise SceneBuilderError(f"scene_builder_cli {args[0]} failed: {output}")

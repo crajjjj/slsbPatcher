@@ -17,11 +17,28 @@ from .actionlog import PatchOp, lower, normalize_tag, trim
 
 
 @dataclass
+class TagChange:
+    added: bool
+    tag: str
+    scene: str
+    log: str  # the action log the line came from
+
+    def __str__(self) -> str:
+        return f"{'+' if self.added else '-'} {self.tag}  ({self.scene})"
+
+
+@dataclass
 class Applied:
-    added: int = 0
-    removed: int = 0
-    changes: list[str] = field(default_factory=list)
+    changes: list[TagChange] = field(default_factory=list)
     matched: set[str] = field(default_factory=set)
+
+    @property
+    def added(self) -> int:
+        return sum(change.added for change in self.changes)
+
+    @property
+    def removed(self) -> int:
+        return sum(not change.added for change in self.changes)
 
 
 def _apply_to_stages(name: str, stages: list[list[str]], ops: list[PatchOp], applied: Applied) -> None:
@@ -34,16 +51,14 @@ def _apply_to_stages(name: str, stages: list[list[str]], ops: list[PatchOp], app
                 tags[:] = [tag for tag in tags if normalize_tag(tag) != op.tag]
                 erased += before - len(tags)
             if erased:
-                applied.removed += 1
-                applied.changes.append(f"- {op.tag}  ({name})")
+                applied.changes.append(TagChange(False, op.tag, name, op.source))
         elif not any(normalize_tag(tag) == op.tag for tags in stages for tag in tags):
             if 1 <= op.stage <= len(stages):
                 stages[op.stage - 1].append(op.tag)
             else:
                 for tags in stages:
                     tags.append(op.tag)
-            applied.added += 1
-            applied.changes.append(f"+ {op.tag}  ({name})")
+            applied.changes.append(TagChange(True, op.tag, name, op.source))
 
 
 def patch_slr(data: bytes, ops_by_scene: dict[str, list[PatchOp]]) -> tuple[bytes, Applied]:

@@ -1,7 +1,7 @@
-"""Build slsbPatcher: Scene Builder's CLI, the tests, slsbPatcher.exe and Release/slsbPatcher-<version>.zip.
+"""Build slsbPatcher: Scene Builder's CLI, the tests, slsbPatcher.exe (window), slsbPatcher-cli.exe and the zip.
 
     py scripts/build.py            everything
-    py scripts/build.py --no-exe   only the CLI and the tests (enough for `py -m slsbpatcher`)
+    py scripts/build.py --no-exe   only Scene Builder's CLI and the tests (enough for `py -m slsbpatcher`)
 
 Needs Rust 1.95+ (rustup) for the CLI and the repo's .venv with PyInstaller for the exe:
     py -m venv .venv && .venv\\Scripts\\python -m pip install pyinstaller
@@ -46,26 +46,32 @@ def run_tests() -> None:
     subprocess.run([sys.executable, "-m", "unittest", "discover", "-s", "tests"], cwd=ROOT, check=True)
 
 
-def build_exe() -> Path:
+def build_exes() -> list[Path]:
+    """slsbPatcher.exe, the window without a console, and slsbPatcher-cli.exe, the command line."""
     python = ROOT / ".venv" / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
     if not python.exists():
         sys.exit("no .venv: py -m venv .venv && .venv\\Scripts\\python -m pip install pyinstaller")
     work = ROOT / "build"
-    subprocess.run([str(python), "-m", "PyInstaller", "--noconfirm", "--clean", "--onefile", "--console",
-                    "--name", "slsbPatcher", "--paths", str(ROOT),
-                    "--distpath", str(work / "dist"), "--workpath", str(work / "work"), "--specpath", str(work),
-                    str(ROOT / "scripts" / "entry.py")], cwd=ROOT, check=True)
-    return work / "dist" / ("slsbPatcher.exe" if os.name == "nt" else "slsbPatcher")
+    built = []
+    for name, mode, entry, extra in (("slsbPatcher", "--windowed", "entry_gui.py", []),
+                                     ("slsbPatcher-cli", "--console", "entry.py", ["--exclude-module", "tkinter"])):
+        subprocess.run([str(python), "-m", "PyInstaller", "--noconfirm", "--clean", "--onefile", mode, *extra,
+                        "--name", name, "--paths", str(ROOT),
+                        "--distpath", str(work / "dist"), "--workpath", str(work / "work"), "--specpath", str(work),
+                        str(ROOT / "scripts" / entry)], cwd=ROOT, check=True)
+        built.append(work / "dist" / (f"{name}.exe" if os.name == "nt" else name))
+    return built
 
 
-def package(exe: Path, cli: Path) -> Path:
+def package(exes: list[Path], cli: Path) -> Path:
     commit = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=SCENE_BUILDER,
                             capture_output=True, text=True).stdout.strip()
     release = ROOT / "Release"
     release.mkdir(exist_ok=True)
     archive = release / f"slsbPatcher-{__version__}.zip"
     with zipfile.ZipFile(archive, "w", zipfile.ZIP_DEFLATED) as zf:
-        zf.write(exe, exe.name)
+        for exe in exes:
+            zf.write(exe, exe.name)
         zf.write(cli, cli.name)
         zf.write(ROOT / "README.md", "README.md")
         zf.write(ROOT / "LICENSE", "LICENSE.txt")
@@ -85,7 +91,7 @@ def main() -> None:
     if args.no_exe:
         print(f"built {cli}")
         return
-    archive = package(build_exe(), cli)
+    archive = package(build_exes(), cli)
     print(f"built {archive}")
 
 

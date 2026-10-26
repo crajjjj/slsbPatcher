@@ -102,6 +102,7 @@ class LogFile:
     disables: int = 0
     comments: int = 0
     invalid: int = 0
+    layer: str = ""  # the mod an installed log comes from; empty for one added by hand
 
 
 @dataclass
@@ -214,6 +215,7 @@ def read_log_file(path: Path, label: str = "") -> LogFile | None:
 def build_logs(files: list[LogFile], official_tags: bool = False) -> ActionLogs:
     logs = ActionLogs(files=files)
     for log in files:
+        log.adds = log.removes = log.stage_labels = log.official_tags = log.disables = log.comments = log.invalid = 0
         for line in log.lines:
             parts = [trim(part) for part in line.split(",")]
             action = lower(parts[0])
@@ -233,7 +235,7 @@ def build_logs(files: list[LogFile], official_tags: bool = False) -> ActionLogs:
                         log.removes += 1
                     else:
                         log.adds += 1
-                    logs.ops.append(PatchOp(remove, lower(parts[1]), tag, stage, log.label))
+                    logs.ops.append(PatchOp(remove, lower(parts[1]), tag, stage, log.path.name))
             else:
                 log.invalid += 1
 

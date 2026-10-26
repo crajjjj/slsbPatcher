@@ -159,6 +159,35 @@ class ConvertHelperTests(unittest.TestCase):
             self.assertEqual(kept["graph"]["old00001"]["dest"], ["old00002"])
 
 
+class EngineTests(unittest.TestCase):
+    def test_patch_run_and_summary(self):
+        from slsbpatcher import engine
+        with tempfile.TemporaryDirectory() as tmp:
+            data = Path(tmp, "Data")
+            registry = data / "SKSE" / "SexLab" / "Registry" / "Pack.slr"
+            registry.parent.mkdir(parents=True)
+            registry.write_bytes(SAMPLE)
+            log = data / "SKSE" / "Plugins" / "SLATE" / "SLATE_ActionLog - Test.json"
+            log.parent.mkdir(parents=True)
+            log.write_text(json.dumps({"stringList": {"slate.actionlog": [
+                "AddTag,Billyy Doggy,NymTag", "RemoveTag,Billyy Doggy,rough", "AddTag,Nobody Here,x"]}}))
+            out = Path(tmp, "out")
+            options = engine.Options(inputs=[data], out=out, convert=False)
+            outcome = engine.execute(options)
+            self.assertEqual(outcome.written, 1)
+            [patched] = outcome.patched
+            self.assertEqual((patched.added, patched.removed, patched.scenes), (1, 1, {"Billyy Doggy"}))
+            self.assertEqual(outcome.unmatched, ["nobody here"])
+            summary = "\n".join(outcome.summary)
+            self.assertIn("Patched 1 of 1 registry: 1 tag added, 1 removed, in 1 scene.", summary)
+            self.assertIn("SLATE_ActionLog - Test.json: +1 -1", summary)
+            self.assertEqual(slr.parse_slr((out / "SKSE/SexLab/Registry/Pack.slr").read_bytes()).scenes[0].stages[0].tags,
+                             ["billyy", "nymtag"])
+            # the output is skipped as an input next time, and an untouched rerun writes nothing
+            again = engine.execute(engine.Options(inputs=[data, out], out=out, convert=False, skip_logs=["SLATE_ActionLog - Test"]))
+            self.assertEqual((again.written, again.patched), (0, []))
+
+
 class GameDataTests(unittest.TestCase):
     def test_layers_and_winners(self):
         with tempfile.TemporaryDirectory() as tmp:
