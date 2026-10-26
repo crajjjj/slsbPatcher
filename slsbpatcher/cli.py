@@ -6,7 +6,7 @@ import logging
 import sys
 from pathlib import Path
 
-from . import __version__, engine, install, runlog
+from . import __version__, engine, install, runlog, scenebuilder
 
 
 def _parse_args(argv):
@@ -78,7 +78,11 @@ def main(argv=None, explorer: bool = False) -> int:
         convert=not args.no_convert, reconvert=args.reconvert, update=args.update, author=args.author,
         stricter_futa=args.stricter_futa, scene_builder=args.scene_builder, zip=args.zip, dry_run=args.dry_run,
         skip_packs=args.skip_pack, skip_registries=args.skip_registry)
-    outcome = engine.execute(options)
+    try:
+        outcome = engine.execute(options)
+    except scenebuilder.SceneBuilderError as error:
+        print(error)
+        return 2
     runlog.write(outcome.report)
     print("\n".join(outcome.summary if args.summary else outcome.report))
     return outcome.code

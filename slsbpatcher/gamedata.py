@@ -103,13 +103,21 @@ def _walk(folder: Path):
             yield Path(dirpath, name)
 
 
+def _listing(folder: Path) -> list[Path]:
+    """The folder's entries, or nothing when it cannot be read (a permission problem is not a crash)."""
+    try:
+        return sorted(folder.iterdir())
+    except OSError:
+        return []
+
+
 def _interesting_files(root: Path, walk_meshes: bool = True):
     slanims = _child(root, "SLAnims")
     if slanims:
         for sub, suffix in (("json", ".json"), ("source", ".txt")):
             folder = _child(slanims, sub)
             if folder:
-                for path in sorted(folder.iterdir()):
+                for path in _listing(folder):
                     if path.is_file() and path.suffix.lower() == suffix:
                         yield path
         # FNIS lists of a SLAL pack, meshes/actors/<race>/animations/<pack>/FNIS_*_List.txt.
@@ -128,7 +136,7 @@ def _interesting_files(root: Path, walk_meshes: bool = True):
                 yield path
     slate = _child(root, "SKSE", "Plugins", "SLATE")
     if slate:
-        for path in sorted(slate.iterdir()):
+        for path in _listing(slate):
             if path.is_file() and path.suffix.lower() == ".json":
                 yield path
 

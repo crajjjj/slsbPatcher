@@ -10,6 +10,7 @@ import json
 import logging
 import os
 import queue
+import re
 import subprocess
 import sys
 import threading
@@ -150,7 +151,15 @@ class App:
 
         root.title(f"slsbPatcher {__version__}")
         root.minsize(1100, 720)
-        root.geometry(s.get("geometry", "1380x860"))
+        geometry = s.get("geometry", "")
+        placed = re.fullmatch(r"(\d+)x(\d+)\+(-?\d+)\+(-?\d+)", geometry)
+        # A remembered place on a screen that is gone would open the window out of sight.
+        if placed and 0 <= int(placed.group(3)) < root.winfo_screenwidth() - 200 \
+                and 0 <= int(placed.group(4)) < root.winfo_screenheight() - 200:
+            root.geometry(geometry)
+        else:
+            root.geometry("1380x860")
+        root.report_callback_exception = self._callback_failed
         self._build()
         self._apply_theme()
 
@@ -239,11 +248,11 @@ class App:
         self.report_text = tk.Text(report, wrap="none", font=MONO, relief="flat", padx=10, pady=8, bd=0,
                                    highlightthickness=0)
         self.report_text.grid(row=0, column=0, sticky="nsew")
-        ttk.Scrollbar(report, orient="vertical", command=self.report_text.yview).grid(row=0, column=1, sticky="ns")
+        vbar = ttk.Scrollbar(report, orient="vertical", command=self.report_text.yview)
+        vbar.grid(row=0, column=1, sticky="ns")
         hbar = ttk.Scrollbar(report, orient="horizontal", command=self.report_text.xview)
         hbar.grid(row=1, column=0, sticky="ew")
-        self.report_text.configure(yscrollcommand=lambda *a: report.grid_slaves(row=0, column=1)[0].set(*a),
-                                   xscrollcommand=hbar.set)
+        self.report_text.configure(yscrollcommand=vbar.set, xscrollcommand=hbar.set)
         self.tabs.add(report, text="Report")
         changes = ttk.Frame(self.tabs, style="Panel.TFrame")
         changes.columnconfigure(0, weight=1)
@@ -340,6 +349,11 @@ class App:
         self._apply_theme()
         self._remember()
 
+    def _callback_failed(self, kind, value, tb) -> None:
+        """A Tk callback raised. The windowed exe has no console, so log it and say so on screen."""
+        logging.getLogger("slsbpatcher").error("".join(traceback.format_exception(kind, value, tb)))
+        self.status_var.set(f"Error: {value} (details in slsbPatcher.log)")
+
     # ------------------------------------------------------------------ menus and dialogs
 
     def _menu(self) -> tk.Menu:
@@ -385,6 +399,7 @@ class App:
         buttons.pack(pady=(0, 14))
         ttk.Button(buttons, text="Open GitHub", command=lambda: webbrowser.open(REPO)).pack(side="left", padx=4)
         ttk.Button(buttons, text="Close", command=win.destroy).pack(side="left", padx=4)
+        win.wait_visibility()  # a grab on a window that is not mapped yet fails
         win.grab_set()
 
     def _options(self) -> None:
@@ -539,7 +554,7 @@ class App:
         item = found.slal[row.json_index]
         name = item.winner.path.name.lower()
         produced = next((p for p in o.produced if p.json_name.lower() == name), None) if o else None
-        if item.covered and name in self.reconvert:
+        if item.covered and name in self.reconvert and self.convert:
             if produced:
                 return f"re-converted: {_count(len(produced.scenes), 'scene')}, replaces its registry", "reconvert"
             return "re-convert: replaces its registry", "reconvert"
@@ -570,10 +585,25 @@ class App:
             return "no changes (already in the registries, or scenes not installed)", "on"
         return "applied when patching", "on"
 
+    @staticmethod
+    def _clear(tree) -> tuple:
+        """Empty a tree, returning what it takes to put the view and the selection back."""
+        state = tree.yview()[0], tree.selection()
+        tree.delete(*tree.get_children())
+        return state
+
+    @staticmethod
+    def _restore(tree, state) -> None:
+        top, selected = state
+        tree.yview_moveto(top)
+        for iid in selected:
+            if tree.exists(iid):
+                tree.selection_set(iid)
+
     def _fill_lists(self) -> None:
         needle = self.search_var.get().strip().lower()
         tree = self.packs_tree
-        tree.delete(*tree.get_children())
+        state = self._clear(tree)
         shown = 0
         for row in self.rows:
             status, tag = self._pack_status(row)
@@ -583,12 +613,13 @@ class App:
             on = self._pack_on(row.key)
             tree.insert("", "end", iid=row.key, tags=(tag if on else "off",),
                         values=(CHECKED if on else UNCHECKED, shown, row.name, row.mod, row.count, status))
+        self._restore(tree, state)
         self._heading_tick(tree, self._pack_on)
         on_count = sum(self._pack_on(r.key) for r in self.rows)
         self.packs_label.configure(text=f"SLAL packs and registries  ({on_count} of {len(self.rows)} ticked)")
 
         tree = self.logs_tree
-        tree.delete(*tree.get_children())
+        state = self._clear(tree)
         shown = 0
         for index, row in enumerate(self.log_rows):
             status, tag = self._log_status(row)
@@ -598,6 +629,7 @@ class App:
             on = row.key not in self.skip_logs
             tree.insert("", "end", iid=f"{index}:{row.key}", tags=(tag if on else "off",),
                         values=(CHECKED if on else UNCHECKED, shown, row.name, row.source, row.lines, status))
+        self._restore(tree, state)
         self._heading_tick(tree, self._log_on)
         on_count = sum(r.key not in self.skip_logs for r in self.log_rows)
         self.logs_label.configure(text=f"SLATE action logs  ({on_count} of {len(self.log_rows)} ticked)")
@@ -812,7 +844,7 @@ class App:
         if o.problems:
             text += f" {_count(len(o.problems), 'problem')} in the report."
         self.status_var.set(text)
-        self.run_button.configure(text="Run" if parts else "Run (nothing to write)")
+        self.run_button.configure(text="Run" if o.patched or o.would_convert else "Run (nothing to write)")
 
     def _after_run(self, o: engine.Outcome) -> None:
         instance = install.mo2()
@@ -874,6 +906,7 @@ class OptionsDialog(tk.Toplevel):
         x = app.root.winfo_rootx() + (app.root.winfo_width() - self.winfo_width()) // 2
         y = app.root.winfo_rooty() + 40
         self.geometry(f"+{max(x, 0)}+{max(y, 0)}")
+        self.wait_visibility()  # a grab on a window that is not mapped yet fails
         self.grab_set()
         self.wait_window()
 

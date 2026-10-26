@@ -155,7 +155,11 @@ class Outcome:
 def read_extra_logs(paths: list[Path]) -> tuple[list[actionlog.LogFile], list[str]]:
     files, problems = [], []
     for path in paths:
-        items = sorted(p for p in path.iterdir() if p.suffix.lower() == ".json") if path.is_dir() else [path]
+        try:
+            items = sorted(p for p in path.iterdir() if p.suffix.lower() == ".json") if path.is_dir() else [path]
+        except OSError as error:
+            problems.append(f"{path}: {error}")
+            continue
         for item in items:
             try:
                 log_file = actionlog.read_log_file(item)
@@ -172,16 +176,16 @@ def read_extra_logs(paths: list[Path]) -> tuple[list[actionlog.LogFile], list[st
 def _load_registries(data: gamedata.GameData, problems: list[str]) -> list[Registry]:
     registries = []
     for winner in data.files("skse/sexlab/registry/", ".slr"):
-        raw = winner.path.read_bytes()
         try:
+            raw = winner.path.read_bytes()
             registries.append(Registry(winner, raw, slr.parse_slr(raw)))
-        except slr.SlrError as error:
+        except (OSError, slr.SlrError) as error:
             problems.append(f"{winner.rel} ({winner.layer.name}): unreadable, {error}")
     projects = []
     for winner in data.files("skse/sexlab/registry/", ".slsb.json"):
         try:
             projects.append((winner, json.loads(winner.path.read_text(encoding="utf-8-sig"))))
-        except (ValueError, UnicodeDecodeError) as error:
+        except (OSError, ValueError, UnicodeDecodeError) as error:
             problems.append(f"{winner.rel} ({winner.layer.name}): unreadable project, {error}")
     # A registry's project is the one whose scene ids it holds: file names differ
     # (FunnyBiznessBound.slsb.json builds FunnyBizBound.slr).
@@ -208,7 +212,7 @@ def _load_slal(data: gamedata.GameData, registries: list[Registry], problems: li
                 events = {str(stage.get("id", "")).lower() for actor in animation.get("actors", [])
                           for stage in actor.get("stages", [])} - {""}
                 animations.append((animation.get("name", ""), events))
-        except (ValueError, AttributeError, TypeError) as error:
+        except (OSError, ValueError, AttributeError, TypeError) as error:
             problems.append(f"{winner.rel} ({winner.layer.name}): unreadable SLAL json, {error}")
             continue
         item = SlalJson(winner, animations)
@@ -228,7 +232,11 @@ def scan(inputs: list[Path], extra_logs: list[Path]) -> Scan:
     data = gamedata.load(inputs)
     installed = []
     for winner in data.files("skse/plugins/slate/", ".json"):
-        log_file = actionlog.read_log_file(winner.path, f"{winner.path.name} ({winner.layer.name})")
+        try:
+            log_file = actionlog.read_log_file(winner.path, f"{winner.path.name} ({winner.layer.name})")
+        except OSError as error:
+            problems.append(f"{winner.rel} ({winner.layer.name}): unreadable, {error}")
+            continue
         if log_file:
             log_file.layer = winner.layer.name
             installed.append(log_file)
@@ -368,8 +376,11 @@ def execute(options: Options, found: Scan | None = None) -> Outcome:
                 previous[registry.project_data.get("pack_name")] = registry.project_data
         for folder in options.update:
             for path in sorted(folder.rglob("*.slsb.json")):
-                project = json.loads(path.read_text(encoding="utf-8-sig"))
-                previous[project.get("pack_name")] = project
+                try:
+                    project = json.loads(path.read_text(encoding="utf-8-sig"))
+                    previous[project.get("pack_name")] = project
+                except (OSError, ValueError, UnicodeDecodeError) as error:
+                    outcome.problems.append(f"{path}: not used as an earlier conversion, {error}")
         exe = scenebuilder.find(options.scene_builder)
         work = Path(tempfile.mkdtemp(prefix="slsbpatcher-"))
         try:
