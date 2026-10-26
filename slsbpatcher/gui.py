@@ -904,12 +904,25 @@ class OptionsDialog(tk.Toplevel):
         self.out_var = tk.StringVar(value=app.out)
         self._build()
         self.update_idletasks()
-        x = app.root.winfo_rootx() + (app.root.winfo_width() - self.winfo_width()) // 2
-        y = app.root.winfo_rooty() + 40
-        self.geometry(f"+{max(x, 0)}+{max(y, 0)}")
+        # As tall as its content, but never taller than the screen: the body scrolls instead.
+        width = self.body.winfo_reqwidth() + 40
+        height = min(self.body.winfo_reqheight() + self.footer.winfo_reqheight() + 24, self.winfo_screenheight() - 140)
+        x = app.root.winfo_rootx() + (app.root.winfo_width() - width) // 2
+        y = max(app.root.winfo_rooty() + 40, 20)
+        if y + height > self.winfo_screenheight() - 60:
+            y = max(20, self.winfo_screenheight() - 60 - height)
+        self.minsize(640, 360)
+        self.geometry(f"{width}x{height}+{max(x, 0)}+{y}")
         self.wait_visibility()  # a grab on a window that is not mapped yet fails
         self.grab_set()
         self.wait_window()
+
+    def _start_dir(self, *candidates) -> str | None:
+        """The first existing folder among the candidates, for a file dialog to open in."""
+        for candidate in candidates:
+            if candidate and Path(candidate).is_dir():
+                return str(candidate)
+        return None
 
     def _listbox(self, parent, height):
         c = self.app.colors
@@ -919,9 +932,24 @@ class OptionsDialog(tk.Toplevel):
         return box
 
     def _build(self) -> None:
-        body = ttk.Frame(self, padding=14)
-        body.pack(fill="both", expand=True)
+        c = self.app.colors
+        self.columnconfigure(0, weight=1)
+        self.rowconfigure(0, weight=1)
+        canvas = tk.Canvas(self, bg=c["bg"], highlightthickness=0, bd=0)
+        canvas.grid(row=0, column=0, sticky="nsew")
+        bar = ttk.Scrollbar(self, orient="vertical", command=canvas.yview)
+        bar.grid(row=0, column=1, sticky="ns")
+        canvas.configure(yscrollcommand=bar.set)
+        body = self.body = ttk.Frame(canvas, padding=14)
         body.columnconfigure(0, weight=1)
+        window = canvas.create_window((0, 0), window=body, anchor="nw")
+        body.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+        canvas.bind("<Configure>", lambda e: canvas.itemconfigure(window, width=e.width))
+        # The wheel scrolls the body wherever the pointer is, except over a list, which scrolls itself.
+        self.bind("<MouseWheel>", lambda e: None if isinstance(e.widget, tk.Listbox)
+                  else canvas.yview_scroll(-1 if e.delta > 0 else 1, "units"))
+        self.footer = ttk.Frame(self, padding=(14, 8, 14, 12))
+        self.footer.grid(row=1, column=0, columnspan=2, sticky="ew")
 
         frame = ttk.LabelFrame(body, text="Load order", padding=8)
         frame.grid(row=0, column=0, sticky="ew")
@@ -999,10 +1027,8 @@ class OptionsDialog(tk.Toplevel):
             "in MO2's mods folder, which MO2 lists once slsbPatcher closes.")).grid(
             row=2, column=0, columnspan=3, sticky="w", pady=(2, 0))
 
-        buttons = ttk.Frame(body)
-        buttons.grid(row=5, column=0, sticky="e", pady=(14, 0))
-        ttk.Button(buttons, text="OK", command=self._ok, width=12).pack(side="left", padx=(0, 6))
-        ttk.Button(buttons, text="Cancel", command=self.destroy, width=12).pack(side="left")
+        ttk.Button(self.footer, text="Cancel", command=self.destroy, width=12).pack(side="right")
+        ttk.Button(self.footer, text="OK", command=self._ok, width=12).pack(side="right", padx=(0, 6))
         self._fill()
 
     def _fill(self) -> None:
@@ -1021,7 +1047,10 @@ class OptionsDialog(tk.Toplevel):
         return int(selection[0]) if selection else None
 
     def _add_input(self) -> None:
-        folder = filedialog.askdirectory(parent=self, title="An MO2 instance or profile folder, a Data folder, or a folder of SLAL packs")
+        instance = install.mo2()
+        folder = filedialog.askdirectory(parent=self, title="An MO2 instance or profile folder, a Data folder, or a folder of SLAL packs",
+                                         initialdir=self._start_dir(instance.folder if instance else None,
+                                                                    self.inputs[-1].parent if self.inputs else None))
         if folder:
             self.inputs.append(Path(folder))
             self._fill()
@@ -1040,14 +1069,20 @@ class OptionsDialog(tk.Toplevel):
         self._fill()
         self.inputs_box.selection_set(index + delta)
 
+    def _logs_dir(self) -> str | None:
+        instance = install.mo2()
+        return self._start_dir(self.logs[-1].parent if self.logs else None, instance.mods if instance else None,
+                               self.inputs[-1] if self.inputs else None)
+
     def _add_log_file(self) -> None:
-        for file in filedialog.askopenfilenames(parent=self, title="SLATE action logs", filetypes=[("SLATE action log", "*.json")]):
+        for file in filedialog.askopenfilenames(parent=self, title="SLATE action logs", filetypes=[("SLATE action log", "*.json")],
+                                                initialdir=self._logs_dir()):
             if Path(file) not in self.logs:
                 self.logs.append(Path(file))
         self._fill()
 
     def _add_log_folder(self) -> None:
-        folder = filedialog.askdirectory(parent=self, title="A folder of SLATE action logs")
+        folder = filedialog.askdirectory(parent=self, title="A folder of SLATE action logs", initialdir=self._logs_dir())
         if not folder:
             return
         found, _ = engine.read_extra_logs([Path(folder)])
@@ -1065,7 +1100,10 @@ class OptionsDialog(tk.Toplevel):
             self._fill()
 
     def _add_update(self) -> None:
-        folder = filedialog.askdirectory(parent=self, title="A folder of *.slsb.json from an earlier conversion")
+        instance = install.mo2()
+        folder = filedialog.askdirectory(parent=self, title="A folder of *.slsb.json from an earlier conversion",
+                                         initialdir=self._start_dir(self.update_dirs[-1] if self.update_dirs else None,
+                                                                    instance.mods if instance else None))
         if folder:
             self.update_dirs.append(Path(folder))
             self._fill()
@@ -1077,12 +1115,17 @@ class OptionsDialog(tk.Toplevel):
             self._fill()
 
     def _browse_sb(self) -> None:
-        file = filedialog.askopenfilename(parent=self, title="scene_builder_cli.exe", filetypes=[("Program", "*.exe"), ("All", "*")])
+        file = filedialog.askopenfilename(parent=self, title="scene_builder_cli.exe", filetypes=[("Program", "*.exe"), ("All", "*")],
+                                          initialdir=self._start_dir(Path(self.sb_var.get()).parent if self.sb_var.get() else None,
+                                                                     install.tool_folder()))
         if file:
             self.sb_var.set(file)
 
     def _browse_out(self) -> None:
-        folder = filedialog.askdirectory(parent=self, title="Output folder (replaced on every run)")
+        current = Path(self.out_var.get().strip()) if self.out_var.get().strip() else None
+        folder = filedialog.askdirectory(parent=self, title="Output folder (replaced on every run)", mustexist=False,
+                                         initialdir=self._start_dir(current, current.parent if current else None,
+                                                                    install.default_out().parent))
         if folder:
             self.out_var.set(folder)
 
