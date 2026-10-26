@@ -26,29 +26,68 @@ for you). Your packs and your other mods are never changed.
   hkxconv, no base game copy, no Python).
 * Pandora or Nemesis, run after any slsbPatcher run that converted a pack.
 
-## Install in MO2
+## Install
 
-Set it up like Pandora:
+Download `slsbPatcher-<version>.zip` from the
+[Releases page](https://github.com/crajjjj/slsbPatcher/releases). It holds three programs and
+their licenses, no game files:
 
-1. Install the release zip with MO2 like any other mod (*Install a new mod from an archive*),
-   named `slsbPatcher`. It is a tool, so MO2 may say the archive holds no game data: install it
-   anyway, and **tick it in the left pane**. MO2 only runs a program that sits inside a mod
-   when that mod is enabled (Pandora is installed the same way).
-2. Add it as an executable: *Tools > Executables* (the gear icon), `+`, *Add from file*, and pick
-   `<MO2>\mods\slsbPatcher\slsbPatcher.exe`. No arguments are needed. Leave *Create files in mod
-   instead of overwrite* off: slsbPatcher writes its own mod.
-3. Start *slsbPatcher* from MO2's executable list. It finds the MO2 it is installed in, reads
-   the profile MO2 has selected and writes the mod **`slsbPatcher Output`**. It previews at once:
-   look at the report, untick what you want left alone, press **Run**, and close slsbPatcher.
-4. MO2 now lists `slsbPatcher Output`. The first time, enable it and move it to the bottom of
-   the left pane. If the summary says packs were converted, run Pandora afterwards.
+| File | |
+|---|---|
+| `slsbPatcher.exe` | the window |
+| `slsbPatcher-cli.exe` | the same work from a command prompt |
+| `scene_builder_cli.exe` | SexLab Scene Builder, used for conversions; keep it beside the other two |
 
-Next time it is steps 3 and 4 only: slsbPatcher replaces `slsbPatcher Output` on every run and
-always reads the original files, never its own earlier output. Nothing in your other mods is
-changed; to go back, disable `slsbPatcher Output`.
+### With Mod Organizer 2 (recommended)
 
-For runs without the window, add `slsbPatcher-cli.exe` the same way. Started with no
-arguments, it does a full run on the selected profile and waits for Enter before it closes.
+Set it up like Pandora: a mod that holds the program, and an executable entry that runs it.
+
+1. **Install the zip as a mod.** In MO2, *Install a new mod from an archive* (the disc icon,
+   or drag the zip onto the left pane), and name it `slsbPatcher`. MO2 will say the archive
+   does not look like a mod, because it has no game data: choose to install it anyway.
+2. **Enable the mod.** Tick `slsbPatcher` in the left pane. MO2 only runs a program that sits
+   inside a mod when that mod is enabled. Its position in the list does not matter.
+3. **Add the executable.** Open *Tools > Executables* (the gear icon, or Ctrl+E), press the
+   `+` and choose *Add from file*, then pick `<your MO2>\mods\slsbPatcher\slsbPatcher.exe`.
+   The fields:
+   * *Title*: `slsbPatcher`
+   * *Binary*: the path you just picked
+   * *Start in* and *Arguments*: leave empty
+   * *Create files in mod instead of overwrite*: leave **off**. slsbPatcher writes its own mod
+     and never touches `overwrite`.
+
+   Press *OK*. `slsbPatcher` now appears in the executables drop-down next to *Run*.
+4. **Run it.** Pick `slsbPatcher` in the drop-down and press *Run*. The window opens, finds the
+   MO2 it is installed in, reads the profile MO2 has selected, and previews at once. Look at
+   the report, untick what you want left alone, press the big **Run** button, then **close
+   slsbPatcher**. MO2 waits for it and refreshes when it closes.
+5. **Enable the output.** MO2 now lists a new mod, **`slsbPatcher Output`**. Tick it and drag it
+   to the bottom of the left pane (the highest priority), so its registries win over the
+   originals. If the report says packs were converted, run Pandora (or Nemesis) afterwards.
+
+From then on it is steps 4 and 5: slsbPatcher replaces `slsbPatcher Output` on every run and
+always reads your original files, never its own earlier output, so you can re-run after every
+new action log or pack. Keep the SLAL packs installed: conversions use their animation files.
+
+To **update slsbPatcher**, install the new zip over the `slsbPatcher` mod (MO2: *Replace*). The
+executable entry keeps working; the ticks you made and the log stay (`slsbPatcher.settings.json`
+and `slsbPatcher.log` live in the mod folder). To **undo** everything slsbPatcher did, untick
+`slsbPatcher Output`. To **remove** it, delete the two mods and the executable entry.
+
+If you prefer the command line, add `slsbPatcher-cli.exe` as an executable the same way.
+Started with no arguments it does a full run on the selected profile and waits for Enter
+before its window closes.
+
+### With Vortex, or without a mod manager
+
+Extract the zip anywhere outside the game folder, for example `D:\Tools\slsbPatcher`, and start
+`slsbPatcher.exe`. It asks for a load order under *Menu > Options*: add your mod manager's
+staging folder of extracted packs, or the game's `Data` folder, or just drop such a folder onto
+`slsbPatcher.exe`. After **Run**, install the output folder (`slsbPatcher Output`, next to the
+exe unless you chose another place) as a mod: zip it and install it with Vortex, giving it a
+*load after* rule over your animation packs, or copy its contents into `Data`. Run Pandora
+afterwards if packs were converted. Run slsbPatcher again whenever a log or a pack changes,
+and replace the installed output with the new one.
 
 ## The window
 
