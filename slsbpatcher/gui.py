@@ -850,7 +850,8 @@ class App:
         instance = install.mo2()
         if o.out and instance and o.out.parent == instance.mods.resolve():
             text = (f"Wrote {_count(o.written, 'file')} to the mod \"{o.out.name}\". Close slsbPatcher so MO2 picks it up"
-                    + (", then run Pandora." if o.converted else "."))
+                    + (", then run Pandora." if o.converted else ".")
+                    + " Keep your conversion mods enabled: the output holds only the files that changed.")
         elif o.out:
             text = f"Wrote {_count(o.written, 'file')} to {o.out}. Install that folder as a mod with the highest priority."
             if o.converted:

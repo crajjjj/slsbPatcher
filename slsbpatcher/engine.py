@@ -509,6 +509,7 @@ def summarize(o: Outcome, layers: int, reconverted: bool, seconds: float) -> lis
     elif o.out:
         lines.append(f"  Wrote {_plural(o.written, 'file')} to {o.out}")
         lines.append("  Install that folder as a mod with the highest priority (MO2: bottom of the left pane).")
+        lines.append("  Keep the mods it was made from enabled: the output holds only the files that changed.")
         if o.converted:
             lines.append("  It holds new conversions: run Pandora (or Nemesis) afterwards, and keep the SLAL packs installed.")
         if o.options.zip:

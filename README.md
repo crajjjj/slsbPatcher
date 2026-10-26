@@ -64,6 +64,9 @@ Set it up like Pandora: a mod that holds the program, and an executable entry th
 5. **Enable the output.** MO2 now lists a new mod, **`slsbPatcher Output`**. Tick it and drag it
    to the bottom of the left pane (the highest priority), so its registries win over the
    originals. If the report says packs were converted, run Pandora (or Nemesis) afterwards.
+   **Keep your conversion mods and SLAL packs enabled.** The output holds only the files that
+   changed (the patched registries, new conversions) and lays them over the originals; with the
+   originals disabled, SexLab P+ has almost no scenes left and nothing starts.
 
 From then on it is steps 4 and 5: slsbPatcher replaces `slsbPatcher Output` on every run and
 always reads your original files, never its own earlier output, so you can re-run after every
