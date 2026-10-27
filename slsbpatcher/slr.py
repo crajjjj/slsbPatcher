@@ -7,6 +7,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+from . import i18n
+
+_ = i18n._
+
 HASH_SIZE = 4
 ID_SIZE = 8
 COORDINATE_SIZE = 16  # x, y, z, rotation as 4-byte fixed point
@@ -54,7 +58,7 @@ class _Cursor:
 
     def need(self, count: int) -> None:
         if count > len(self.data) - self.pos:
-            raise SlrError("unexpected end of file")
+            raise SlrError(_("unexpected end of file"))
 
     def skip(self, count: int) -> None:
         self.need(count)
@@ -132,11 +136,11 @@ def parse_slr(data: bytes) -> SlrFile:
     cursor = _Cursor(data)
     version = cursor.u8()
     if not MIN_VERSION <= version <= MAX_VERSION:
-        raise SlrError(f"unsupported registry version {version}")
+        raise SlrError(_("unsupported registry version %(version)d") % {"version": version})
     slr = SlrFile(version, cursor.string(), cursor.string(), cursor.fixed(HASH_SIZE))
     slr.scenes = [_read_scene(cursor, version) for _ in range(cursor.u64())]
     if cursor.pos != len(data):
-        raise SlrError("unexpected data after the last scene")
+        raise SlrError(_("unexpected data after the last scene"))
     return slr
 
 

@@ -1,0 +1,1443 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: slsbPatcher 0.1.2\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: slsbpatcher/console.py:35
+#, python-format
+msgid ""
+"\n"
+"Press Enter to close this window."
+msgstr ""
+
+#: slsbpatcher/engine.py:481
+#, python-format
+msgid "      %(log)s: +%(added)d -%(removed)d"
+msgstr ""
+
+#: slsbpatcher/engine.py:487
+#, python-format
+msgid "      %(log)s: no changes (already in the registries, or for scenes not installed)"
+msgstr ""
+
+#: slsbpatcher/engine.py:471
+#, python-format
+msgid "      %(mod)s: %(registries)s, +%(added)d -%(removed)d"
+msgstr ""
+
+#: slsbpatcher/engine.py:596
+#, python-format
+msgid "      and its project %(rel)s"
+msgstr ""
+
+#: slsbpatcher/engine.py:522
+#, python-format
+msgid "    A re-conversion takes its tags only from the logs read in this run."
+msgstr ""
+
+#: slsbpatcher/engine.py:477
+#, python-format
+msgid "    By action log:"
+msgstr ""
+
+#: slsbpatcher/engine.py:469
+#, python-format
+msgid "    By mod:"
+msgstr ""
+
+#: slsbpatcher/engine.py:492
+#, python-format
+msgid "    Tags: %(tags)s"
+msgstr ""
+
+#: slsbpatcher/engine.py:491
+#, python-format
+msgid "    Tags: %(tags)s, and %(more)d more"
+msgstr ""
+
+#: slsbpatcher/engine.py:610
+#, python-format
+msgid "  %(json)s (%(mod)s): %(covered)d of %(total)d animations are in an installed registry; not in one: %(names)s"
+msgstr ""
+
+#: slsbpatcher/engine.py:538
+#, python-format
+msgid "  %(jsons)s only partly converted (%(missing)s in no registry; re-convert to add them): %(names)s"
+msgstr ""
+
+#: slsbpatcher/engine.py:547
+#, python-format
+msgid "  %(lines)s naming P+ official tags were left out of the patch."
+msgstr ""
+
+#: slsbpatcher/engine.py:581
+#, python-format
+msgid "  %(log)s: %(lines)d lines, %(adds)d AddTag, %(removes)d RemoveTag (%(labels)d stage labels); skipped %(official)d P+ official tags, %(disables)d Disable, %(comments)d comments, %(invalid)d invalid"
+msgstr ""
+
+#: slsbpatcher/engine.py:598
+#, python-format
+msgid "  %(n)d already up to date"
+msgstr ""
+
+#: slsbpatcher/engine.py:603
+#, python-format
+msgid "  %(name)s: left alone (unticked)"
+msgstr ""
+
+#: slsbpatcher/engine.py:550
+#, python-format
+msgid "  %(problems)s, listed at the end."
+msgstr ""
+
+#: slsbpatcher/engine.py:600
+#, python-format
+msgid "  %(rel)s: left alone (unticked)"
+msgstr ""
+
+#: slsbpatcher/engine.py:544
+#, python-format
+msgid "  %(scenes)s named in the logs are not installed (listed in the details)."
+msgstr ""
+
+#: slsbpatcher/engine.py:567
+#, python-format
+msgid "  (%(seconds).1f s)"
+msgstr ""
+
+#: slsbpatcher/engine.py:620
+#, python-format
+msgid "  ... and %(n)d more"
+msgstr ""
+
+#: slsbpatcher/engine.py:605
+#, python-format
+msgid "  converted %(json)s (%(mod)s) -> %(slr)s, %(n)d scenes"
+msgstr ""
+
+#: slsbpatcher/engine.py:511
+#, python-format
+msgid "  Converted %(jsons)s into new registries (%(scenes)s):"
+msgstr ""
+
+#: slsbpatcher/engine.py:531
+#, python-format
+msgid "  Converting is off."
+msgstr ""
+
+#: slsbpatcher/engine.py:533
+#, python-format
+msgid "  Every SLAL pack already has a conversion."
+msgstr ""
+
+#: slsbpatcher/engine.py:558
+#, python-format
+msgid "  Install that folder as a mod with the highest priority (MO2: bottom of the left pane)."
+msgstr ""
+
+#: slsbpatcher/engine.py:561
+#, python-format
+msgid "  It holds new conversions: run Pandora (or Nemesis) afterwards, and keep the SLAL packs installed."
+msgstr ""
+
+#: slsbpatcher/engine.py:559
+#, python-format
+msgid "  Keep the mods it was made from enabled: the output holds only the files that changed."
+msgstr ""
+
+#: slsbpatcher/convert.py:218
+#, python-format
+msgid "  kept %(n)d stage ids of the earlier conversion"
+msgstr ""
+
+#: slsbpatcher/engine.py:502
+#, python-format
+msgid "  Left alone (unticked): %(packs)s, %(registries)s."
+msgstr ""
+
+#: slsbpatcher/engine.py:498
+#, python-format
+msgid "  Nothing to patch: all %(total)s already match the logs."
+msgstr ""
+
+#: slsbpatcher/engine.py:494
+#, python-format
+msgid "  Nothing to patch: no action logs were read."
+msgstr ""
+
+#: slsbpatcher/engine.py:496
+#, python-format
+msgid "  Nothing to patch: no registries in the load order."
+msgstr ""
+
+#: slsbpatcher/engine.py:566
+#, python-format
+msgid "  Nothing to write."
+msgstr ""
+
+#: slsbpatcher/engine.py:564
+#, python-format
+msgid "  Packed %(zip)s"
+msgstr ""
+
+#: slsbpatcher/engine.py:462
+#, python-format
+msgid "  Patched %(patched)d of %(total)s: %(added)s added, %(removed)d removed, in %(scenes)s."
+msgstr ""
+
+#: slsbpatcher/engine.py:592
+#, python-format
+msgid "  patched %(rel)s (%(mod)s): +%(added)d -%(removed)d"
+msgstr ""
+
+#: slsbpatcher/engine.py:457
+#, python-format
+msgid "  Patching is off."
+msgstr ""
+
+#: slsbpatcher/engine.py:554
+#, python-format
+msgid "  Preview only: nothing was written."
+msgstr ""
+
+#: slsbpatcher/engine.py:590
+#, python-format
+msgid "  re-converted from %(json)s, not patched"
+msgstr ""
+
+#: slsbpatcher/engine.py:449
+#, python-format
+msgid "  Read %(logs)s (%(lines)s) and %(registries)s from %(mods)s."
+msgstr ""
+
+#: slsbpatcher/engine.py:577
+#, python-format
+msgid "  skipped %(layer)s: an earlier slsbPatcher output, so its originals are patched instead"
+msgstr ""
+
+#: slsbpatcher/engine.py:575
+#, python-format
+msgid "  started from MO2: its virtual file system is active"
+msgstr ""
+
+#: slsbpatcher/engine.py:608
+#, python-format
+msgid "  would convert %(json)s (%(mod)s)"
+msgstr ""
+
+#: slsbpatcher/engine.py:525
+#, python-format
+msgid "  Would convert %(jsons)s: %(names)s%(more)s"
+msgstr ""
+
+#: slsbpatcher/engine.py:556
+#, python-format
+msgid "  Wrote %(files)s to %(out)s"
+msgstr ""
+
+#: argparse
+#, python-format
+msgid " (default: %(default)s)"
+msgstr ""
+
+#: slsbpatcher/install.py:62
+#, python-format
+msgid " (started from MO2)"
+msgstr ""
+
+#: slsbpatcher/gui.py:936
+#, python-format
+msgid "%(count)s to convert"
+msgstr ""
+
+#: slsbpatcher/gui.py:934
+#, python-format
+msgid "%(count)s to patch"
+msgstr ""
+
+#: slsbpatcher/scenebuilder.py:46
+#, python-format
+msgid "%(exe)s not found. Put it in %(folder)s, pass --scene-builder, or set SLSB_CLI."
+msgstr ""
+
+#: slsbpatcher/engine.py:176
+#, python-format
+msgid "%(file)s has no slate.actionlog list"
+msgstr ""
+
+#: argparse
+#, python-format
+msgid "%(heading)s:"
+msgstr ""
+
+#: slsbpatcher/gui.py:114
+#, python-format
+msgid "%(lines)d (%(adds)d+ %(removes)d-)"
+msgstr ""
+
+#: slsbpatcher/gui.py:817
+#, python-format
+msgid "%(missing)d of %(total)d animations in no registry"
+msgstr ""
+
+#: slsbpatcher/convert.py:252
+#, python-format
+msgid "%(mod)s: %(rel)s is also produced by another pack; kept the first one"
+msgstr ""
+
+#: slsbpatcher/convert.py:258
+#, python-format
+msgid "%(mod)s: conversion failed: %(error)s"
+msgstr ""
+
+#: slsbpatcher/engine.py:450
+#, python-format
+msgid "%(n)d action log"
+msgid_plural "%(n)d action logs"
+msgstr[0] ""
+msgstr[1] ""
+
+#: slsbpatcher/engine.py:622
+#, python-format
+msgid "%(n)d action log lines name a P+ official tag and were not patched in (turn on official tags to apply them scene-wide). New conversions read them as slsb-convert.py does."
+msgstr ""
+
+#: slsbpatcher/engine.py:540
+#, python-format
+msgid "%(n)d animation"
+msgid_plural "%(n)d animations"
+msgstr[0] ""
+msgstr[1] ""
+
+#: slsbpatcher/gui.py:126
+#, python-format
+msgid "%(n)d enabled mod"
+msgid_plural "%(n)d enabled mods"
+msgstr[0] ""
+msgstr[1] ""
+
+#: slsbpatcher/engine.py:557
+#: slsbpatcher/gui.py:91
+#, python-format
+msgid "%(n)d file"
+msgid_plural "%(n)d files"
+msgstr[0] ""
+msgstr[1] ""
+
+#: slsbpatcher/gui.py:939
+#, python-format
+msgid "%(n)d left alone"
+msgstr ""
+
+#: slsbpatcher/engine.py:451
+#, python-format
+msgid "%(n)d line"
+msgid_plural "%(n)d lines"
+msgstr[0] ""
+msgstr[1] ""
+
+#: slsbpatcher/engine.py:548
+#, python-format
+msgid "%(n)d log line"
+msgid_plural "%(n)d log lines"
+msgstr[0] ""
+msgstr[1] ""
+
+#: slsbpatcher/engine.py:453
+#, python-format
+msgid "%(n)d mod"
+msgid_plural "%(n)d mods"
+msgstr[0] ""
+msgstr[1] ""
+
+#: slsbpatcher/gui.py:87
+#, python-format
+msgid "%(n)d pack"
+msgid_plural "%(n)d packs"
+msgstr[0] ""
+msgstr[1] ""
+
+#: slsbpatcher/engine.py:551
+#: slsbpatcher/gui.py:95
+#, python-format
+msgid "%(n)d problem"
+msgid_plural "%(n)d problems"
+msgstr[0] ""
+msgstr[1] ""
+
+#: slsbpatcher/engine.py:452
+#: slsbpatcher/engine.py:505
+#: slsbpatcher/engine.py:464
+#: slsbpatcher/engine.py:473
+#: slsbpatcher/engine.py:499
+#: slsbpatcher/gui.py:83
+#, python-format
+msgid "%(n)d registry"
+msgid_plural "%(n)d registries"
+msgstr[0] ""
+msgstr[1] ""
+
+#: slsbpatcher/engine.py:513
+#: slsbpatcher/engine.py:545
+#: slsbpatcher/engine.py:467
+#: slsbpatcher/gui.py:79
+#, python-format
+msgid "%(n)d scene"
+msgid_plural "%(n)d scenes"
+msgstr[0] ""
+msgstr[1] ""
+
+#: slsbpatcher/gui.py:764
+#, python-format
+msgid "%(n)d scene, and its project"
+msgid_plural "%(n)d scenes, and its project"
+msgstr[0] ""
+msgstr[1] ""
+
+#: slsbpatcher/engine.py:616
+#, python-format
+msgid "%(n)d scenes named in the action logs are in no registry or conversion:"
+msgstr ""
+
+#: slsbpatcher/engine.py:512
+#: slsbpatcher/engine.py:526
+#, python-format
+msgid "%(n)d SLAL json"
+msgid_plural "%(n)d SLAL jsons"
+msgstr[0] ""
+msgstr[1] ""
+
+#: slsbpatcher/engine.py:539
+#, python-format
+msgid "%(n)d SLAL json is"
+msgid_plural "%(n)d SLAL jsons are"
+msgstr[0] ""
+msgstr[1] ""
+
+#: slsbpatcher/engine.py:503
+#, python-format
+msgid "%(n)d SLAL pack"
+msgid_plural "%(n)d SLAL packs"
+msgstr[0] ""
+msgstr[1] ""
+
+#: slsbpatcher/engine.py:465
+#, python-format
+msgid "%(n)d tag"
+msgid_plural "%(n)d tags"
+msgstr[0] ""
+msgstr[1] ""
+
+#: slsbpatcher/gui.py:861
+#, python-format
+msgid ""
+"%(out)s is not empty and is not an slsbPatcher output.\n"
+"\n"
+"Choose another output folder in Menu > Options."
+msgstr ""
+
+#: slsbpatcher/cli.py:86
+#, python-format
+msgid "%(out)s is not empty and is not an slsbPatcher output; pick another --out"
+msgstr ""
+
+#: slsbpatcher/engine.py:277
+#, python-format
+msgid "%(out)s is not empty and is not an slsbPatcher output; pick another output folder"
+msgstr ""
+
+#: slsbpatcher/gui.py:729
+#, python-format
+msgid "%(path)s (MO2, profile %(profile)s)"
+msgstr ""
+
+#: slsbpatcher/engine.py:165
+#: slsbpatcher/engine.py:171
+#, python-format
+msgid "%(path)s: %(error)s"
+msgstr ""
+
+#: slsbpatcher/engine.py:389
+#, python-format
+msgid "%(path)s: not used as an earlier conversion, %(error)s"
+msgstr ""
+
+#: slsbpatcher/gui.py:943
+#: slsbpatcher/gui.py:966
+#, python-format
+msgid "%(problems)s in the report."
+msgstr ""
+
+#: argparse
+#, python-format
+msgid ""
+"%(prog)s: error: %(message)s\n"
+""
+msgstr ""
+
+#: slsbpatcher/engine.py:194
+#, python-format
+msgid "%(rel)s (%(mod)s): unreadable project, %(error)s"
+msgstr ""
+
+#: slsbpatcher/engine.py:222
+#, python-format
+msgid "%(rel)s (%(mod)s): unreadable SLAL json, %(error)s"
+msgstr ""
+
+#: slsbpatcher/engine.py:187
+#: slsbpatcher/engine.py:245
+#, python-format
+msgid "%(rel)s (%(mod)s): unreadable, %(error)s"
+msgstr ""
+
+#: slsbpatcher/engine.py:399
+#, python-format
+msgid "%(rel)s: written by both the patch and a conversion; kept the conversion"
+msgstr ""
+
+#: slsbpatcher/gui.py:799
+#, python-format
+msgid "%(scenes)s, %(module)s"
+msgstr ""
+
+#: slsbpatcher/gui.py:646
+#, python-format
+msgid "%(status)s; %(n)d animation in no registry"
+msgid_plural "%(status)s; %(n)d animations in no registry"
+msgstr[0] ""
+msgstr[1] ""
+
+#: slsbpatcher/gui.py:695
+#: slsbpatcher/gui.py:713
+#, python-format
+msgid "%(what)s  (%(on)d of %(total)d ticked)"
+msgstr ""
+
+#: slsbpatcher/gui.py:100
+#, python-format
+msgid ", "
+msgstr ""
+
+#: slsbpatcher/gui.py:1247
+#, python-format
+msgid "A folder of *.slsb.json from an earlier conversion"
+msgstr ""
+
+#: slsbpatcher/gui.py:1224
+#, python-format
+msgid "A folder of SLATE action logs"
+msgstr ""
+
+#: slsbpatcher/gui.py:252
+#, python-format
+msgid "About"
+msgstr ""
+
+#: slsbpatcher/gui.py:451
+#, python-format
+msgid "About slsbPatcher"
+msgstr ""
+
+#: slsbpatcher/engine.py:579
+#, python-format
+msgid "Action logs: %(n)d"
+msgstr ""
+
+#: slsbpatcher/gui.py:1099
+#, python-format
+msgid "Add file..."
+msgstr ""
+
+#: slsbpatcher/gui.py:1083
+#: slsbpatcher/gui.py:1099
+#: slsbpatcher/gui.py:1129
+#, python-format
+msgid "Add folder..."
+msgstr ""
+
+#: slsbpatcher/gui.py:323
+#, python-format
+msgid "Added"
+msgstr ""
+
+#: slsbpatcher/gui.py:1263
+#, python-format
+msgid "All"
+msgstr ""
+
+#: slsbpatcher/gui.py:1147
+#, python-format
+msgid "Also pack it into a .zip beside the folder"
+msgstr ""
+
+#: slsbpatcher/cli.py:59
+#, python-format
+msgid "also pack the output folder into a .zip beside it"
+msgstr ""
+
+#: slsbpatcher/gui.py:1086
+#, python-format
+msgid "An MO2 instance or profile folder (an instance follows the profile MO2 has selected), a Data folder, or a folder of extracted SLAL packs. A lower row wins over the rows above it."
+msgstr ""
+
+#: slsbpatcher/gui.py:1189
+#, python-format
+msgid "An MO2 instance or profile folder, a Data folder, or a folder of SLAL packs"
+msgstr ""
+
+#: slsbpatcher/cli.py:27
+#, python-format
+msgid "an MO2 profile or instance folder, a Data folder, or a folder of extracted packs. Several are layered, the last one winning. Installed as a mod in MO2, the default is that MO2 with its selected profile."
+msgstr ""
+
+#: slsbpatcher/gui.py:282
+#, python-format
+msgid "Animations"
+msgstr ""
+
+#: slsbpatcher/gui.py:662
+#, python-format
+msgid "applied when patching"
+msgstr ""
+
+#: slsbpatcher/gui.py:660
+#, python-format
+msgid "applied: +%(added)d -%(removed)d"
+msgstr ""
+
+#: argparse
+#, python-format
+msgid "argument %(argument_name)s: %(message)s"
+msgstr ""
+
+#: slsbpatcher/gui.py:1133
+#: slsbpatcher/gui.py:1146
+#, python-format
+msgid "Browse..."
+msgstr ""
+
+#: slsbpatcher/gui.py:782
+#, python-format
+msgid "By action log"
+msgstr ""
+
+#: slsbpatcher/gui.py:1166
+#, python-format
+msgid "Cancel"
+msgstr ""
+
+#: slsbpatcher/gui.py:331
+#, python-format
+msgid "Changes"
+msgstr ""
+
+#: slsbpatcher/gui.py:469
+#, python-format
+msgid "Close"
+msgstr ""
+
+#: slsbpatcher/cli.py:51
+#, python-format
+msgid "convert this SLAL json (file name or stem), pack or mod name even though a registry covers it, reusing that registry's hash and ids; the new registry replaces it. Repeatable."
+msgstr ""
+
+#: slsbpatcher/gui.py:1107
+#, python-format
+msgid "Convert ticked SLAL packs that have no conversion yet"
+msgstr ""
+
+#: slsbpatcher/gui.py:639
+#, python-format
+msgid "converted: %(scenes)s"
+msgstr ""
+
+#: slsbpatcher/gui.py:1115
+#, python-format
+msgid "Converting"
+msgstr ""
+
+#: slsbpatcher/convert.py:204
+#, python-format
+msgid "converting %(mod)s: %(jsons)s"
+msgstr ""
+
+#: slsbpatcher/gui.py:324
+#, python-format
+msgid "Details"
+msgstr ""
+
+#: slsbpatcher/gui.py:968
+#, python-format
+msgid "Done. Run again"
+msgstr ""
+
+#: slsbpatcher/gui.py:1122
+#, python-format
+msgid "Earlier conversions to keep the pack hash and ids from (folders of *.slsb.json; installed ones are found by themselves):"
+msgstr ""
+
+#: slsbpatcher/gui.py:418
+#, python-format
+msgid "Error: %(error)s (details in slsbPatcher.log)"
+msgstr ""
+
+#: slsbpatcher/gui.py:791
+#, python-format
+msgid "every ticked registry already matches the logs"
+msgstr ""
+
+#: slsbpatcher/engine.py:588
+#, python-format
+msgid "Existing conversions: %(n)d registries"
+msgstr ""
+
+#: slsbpatcher/gui.py:443
+#, python-format
+msgid "Exit"
+msgstr ""
+
+#: argparse
+#, python-format
+msgid "expected at least one argument"
+msgstr ""
+
+#: argparse
+#, python-format
+msgid "expected at most one argument"
+msgstr ""
+
+#: argparse
+#, python-format
+msgid "expected one argument"
+msgstr ""
+
+#: slsbpatcher/gui.py:1091
+#, python-format
+msgid "Extra action logs (besides the ones installed in the load order)"
+msgstr ""
+
+#: slsbpatcher/cli.py:34
+#, python-format
+msgid "extra SLATE action log file or folder (e.g. Hentairim tag logs); repeatable. Logs installed under SKSE/Plugins/SLATE are always read."
+msgstr ""
+
+#: slsbpatcher/gui.py:916
+#, python-format
+msgid "Failed: %(error)s"
+msgstr ""
+
+#: slsbpatcher/gui.py:1144
+#, python-format
+msgid "Folder"
+msgstr ""
+
+#: slsbpatcher/gui.py:121
+#, python-format
+msgid "folder not found"
+msgstr ""
+
+#: slsbpatcher/gui.py:133
+#, python-format
+msgid "folder of %(n)d pack folders"
+msgstr ""
+
+#: slsbpatcher/cli.py:55
+#, python-format
+msgid "folder of *.slsb.json from an earlier conversion, to keep its pack hash and scene ids"
+msgstr ""
+
+#: slsbpatcher/gui.py:295
+#, python-format
+msgid "From"
+msgstr ""
+
+#: slsbpatcher/gui.py:607
+#, python-format
+msgid "has a registry (patching is off)"
+msgstr ""
+
+#: slsbpatcher/gui.py:617
+#, python-format
+msgid "has a registry: patched with the logs"
+msgstr ""
+
+#: slsbpatcher/gui.py:778
+#, python-format
+msgid "how many scenes got the change"
+msgstr ""
+
+#: slsbpatcher/cli.py:36
+#, python-format
+msgid "ignore action logs found in the inputs"
+msgstr ""
+
+#: slsbpatcher/cli.py:38
+#, python-format
+msgid "ignore the action log with this file name (e.g. \"SLATE_ActionLog - OsmelMC.json\"); repeatable"
+msgstr ""
+
+#: slsbpatcher/engine.py:572
+#, python-format
+msgid "Inputs: %(inputs)s (%(n)d mods/folders)"
+msgstr ""
+
+#: slsbpatcher/install.py:63
+#, python-format
+msgid "Installed in the MO2 instance %(folder)s%(vfs)s: it reads the selected profile (%(profile)s) and writes the mod \"%(mod)s\". After a run, close slsbPatcher; MO2 then lists that mod. Enable it and keep it at the bottom."
+msgstr ""
+
+#: slsbpatcher/gui.py:1155
+#, python-format
+msgid "Interface"
+msgstr ""
+
+#: slsbpatcher/gui.py:964
+#, python-format
+msgid "Keep your conversion mods enabled: the output holds only the files that changed."
+msgstr ""
+
+#: slsbpatcher/gui.py:1157
+#, python-format
+msgid "Language"
+msgstr ""
+
+#: slsbpatcher/cli.py:63
+#, python-format
+msgid "language of this run, e.g. en or zh_CN (default: the setting, then Windows)"
+msgstr ""
+
+#: slsbpatcher/gui.py:1138
+#, python-format
+msgid "Leave empty for %(what)s"
+msgstr ""
+
+#: slsbpatcher/cli.py:49
+#, python-format
+msgid "leave this registry (.slr file name or path) alone; repeatable"
+msgstr ""
+
+#: slsbpatcher/cli.py:46
+#, python-format
+msgid "leave this SLAL json (file name or stem) alone: not converted, and the registry made from it not patched; repeatable"
+msgstr ""
+
+#: slsbpatcher/gui.py:621
+#: slsbpatcher/gui.py:615
+#, python-format
+msgid "left alone"
+msgstr ""
+
+#: slsbpatcher/gui.py:807
+#, python-format
+msgid "Left alone, unticked (%(n)d)"
+msgstr ""
+
+#: slsbpatcher/gui.py:654
+#, python-format
+msgid "left out"
+msgstr ""
+
+#: slsbpatcher/gui.py:296
+#, python-format
+msgid "Lines"
+msgstr ""
+
+#: slsbpatcher/gui.py:1076
+#, python-format
+msgid "Load order"
+msgstr ""
+
+#: slsbpatcher/gui.py:731
+#, python-format
+msgid "Load order: %(inputs)s   →   output: %(out)s"
+msgstr ""
+
+#: slsbpatcher/gui.py:464
+#, python-format
+msgid "Log: %(log)s"
+msgstr ""
+
+#: slsbpatcher/gui.py:250
+#, python-format
+msgid "Menu"
+msgstr ""
+
+#: slsbpatcher/gui.py:237
+#: slsbpatcher/gui.py:856
+#, python-format
+msgid "Menu > Options to add your load order."
+msgstr ""
+
+#: slsbpatcher/gui.py:130
+#, python-format
+msgid "MO2 profile, %(mods)s"
+msgstr ""
+
+#: slsbpatcher/gui.py:128
+#, python-format
+msgid "MO2, profile %(profile)s, %(mods)s"
+msgstr ""
+
+#: slsbpatcher/gui.py:281
+#, python-format
+msgid "Mod"
+msgstr ""
+
+#: slsbpatcher/gui.py:1084
+#, python-format
+msgid "Move down"
+msgstr ""
+
+#: slsbpatcher/gui.py:1084
+#, python-format
+msgid "Move up"
+msgstr ""
+
+#: slsbpatcher/gui.py:281
+#: slsbpatcher/gui.py:295
+#, python-format
+msgid "Name"
+msgstr ""
+
+#: slsbpatcher/cli.py:76
+#, python-format
+msgid "Name your load order: an MO2 profile folder, a Data folder or a folder of SLAL packs (see --help)."
+msgstr ""
+
+#: slsbpatcher/gui.py:795
+#, python-format
+msgid "New conversions (%(n)d)"
+msgstr ""
+
+#: slsbpatcher/gui.py:789
+#, python-format
+msgid "no action logs ticked"
+msgstr ""
+
+#: slsbpatcher/gui.py:635
+#, python-format
+msgid "no animations"
+msgstr ""
+
+#: slsbpatcher/gui.py:661
+#, python-format
+msgid "no changes (already in the registries, or scenes not installed)"
+msgstr ""
+
+#: slsbpatcher/gui.py:787
+#, python-format
+msgid "no changes: already in the registries, or scenes not installed"
+msgstr ""
+
+#: slsbpatcher/gui.py:235
+#, python-format
+msgid ""
+"No load order yet.\n"
+"\n"
+"Menu > Options: add your MO2 profile folder (for example MO2\\profiles\\Default), a Data folder, or a folder of extracted SLAL packs."
+msgstr ""
+
+#: slsbpatcher/gui.py:724
+#, python-format
+msgid "No load order: Menu > Options."
+msgstr ""
+
+#: slsbpatcher/gui.py:790
+#, python-format
+msgid "no registries in the load order"
+msgstr ""
+
+#: slsbpatcher/gui.py:637
+#, python-format
+msgid "no registry (converting is off)"
+msgstr ""
+
+#: slsbpatcher/gui.py:640
+#, python-format
+msgid "no registry: converted"
+msgstr ""
+
+#: slsbpatcher/gui.py:1137
+#, python-format
+msgid "none found; converting needs it"
+msgstr ""
+
+#: slsbpatcher/gamedata.py:277
+#, python-format
+msgid "not a folder: %(path)s"
+msgstr ""
+
+#: slsbpatcher/gui.py:460
+#, python-format
+msgid "Not installed in an MO2 instance."
+msgstr ""
+
+#: slsbpatcher/gui.py:941
+#, python-format
+msgid "nothing to do"
+msgstr ""
+
+#: slsbpatcher/gui.py:792
+#, python-format
+msgid "Nothing to patch"
+msgstr ""
+
+#: slsbpatcher/gui.py:960
+#, python-format
+msgid "Nothing to write."
+msgstr ""
+
+#: slsbpatcher/gui.py:1111
+#, python-format
+msgid "Official tags are off by default, as in SLATE NG: P+ reads them per stage, so a scene-wide \"leadin\" makes every stage a lead-in."
+msgstr ""
+
+#: slsbpatcher/gui.py:1167
+#, python-format
+msgid "OK"
+msgstr ""
+
+#: slsbpatcher/gui.py:132
+#, python-format
+msgid "one mod / Data folder"
+msgstr ""
+
+#: slsbpatcher/cli.py:44
+#, python-format
+msgid "only convert SLAL packs that have no registry"
+msgstr ""
+
+#: slsbpatcher/cli.py:43
+#, python-format
+msgid "only patch existing registries"
+msgstr ""
+
+#: slsbpatcher/gui.py:504
+#: slsbpatcher/gui.py:515
+#, python-format
+msgid "Open containing folder"
+msgstr ""
+
+#: slsbpatcher/gui.py:468
+#, python-format
+msgid "Open GitHub"
+msgstr ""
+
+#: slsbpatcher/gui.py:440
+#, python-format
+msgid "Open log file"
+msgstr ""
+
+#: slsbpatcher/gui.py:438
+#, python-format
+msgid "Open output folder"
+msgstr ""
+
+#: slsbpatcher/gui.py:995
+#, python-format
+msgid "Options"
+msgstr ""
+
+#: argparse
+#, python-format
+msgid "options"
+msgstr ""
+
+#: slsbpatcher/gui.py:429
+#, python-format
+msgid "Options..."
+msgstr ""
+
+#: slsbpatcher/gui.py:1141
+#, python-format
+msgid "Output"
+msgstr ""
+
+#: slsbpatcher/gui.py:1272
+#, python-format
+msgid "Output folder (replaced on every run)"
+msgstr ""
+
+#: slsbpatcher/cli.py:31
+#, python-format
+msgid "output folder, installed as a mod (default: the mod \"slsbPatcher Output\" when installed in MO2, else \"slsbPatcher Output\" in the current folder)"
+msgstr ""
+
+#: slsbpatcher/gui.py:1118
+#, python-format
+msgid "Pack author"
+msgstr ""
+
+#: slsbpatcher/cli.py:56
+#, python-format
+msgid "pack author written into new conversions (slsb-convert.py -a)"
+msgstr ""
+
+#: slsbpatcher/gui.py:813
+#, python-format
+msgid "Partly converted packs (%(n)d)"
+msgstr ""
+
+#: slsbpatcher/gui.py:1105
+#, python-format
+msgid "Patch existing conversions with the ticked action logs (tags only)"
+msgstr ""
+
+#: slsbpatcher/cli.py:24
+#, python-format
+msgid "Patch existing SexLab P+ scene registries with SLATE action logs, and convert SLAL packs that have no SLSB conversion yet. Without arguments it opens its window."
+msgstr ""
+
+#: slsbpatcher/gui.py:755
+#, python-format
+msgid "Patched registries (%(patched)d of %(total)d)"
+msgstr ""
+
+#: slsbpatcher/gui.py:612
+#, python-format
+msgid "patched: +%(added)d -%(removed)d in %(scenes)s"
+msgstr ""
+
+#: slsbpatcher/gui.py:455
+#, python-format
+msgid ""
+"Patches SexLab P+ scene registries with SLATE action logs and converts SLAL packs that\n"
+"have no conversion yet. GPL-3.0.\n"
+"\n"
+"Built on slsb-convert.py (SLP-Community, GPL-3.0), the patch rules of SLATE NG (GPL-3.0)\n"
+"and SexLab Scene Builder (Scrab, I unpause, Miss Corruption; Apache-2.0)."
+msgstr ""
+
+#: slsbpatcher/gui.py:873
+#, python-format
+msgid "Patching and converting..."
+msgstr ""
+
+#: slsbpatcher/cli.py:58
+#, python-format
+msgid "path to scene_builder_cli.exe"
+msgstr ""
+
+#: argparse
+#, python-format
+msgid "positional arguments"
+msgstr ""
+
+#: slsbpatcher/gui.py:940
+#, python-format
+msgid "Preview: %(parts)s. Tick or untick, then press Run."
+msgstr ""
+
+#: slsbpatcher/gui.py:875
+#, python-format
+msgid "Previewing..."
+msgstr ""
+
+#: slsbpatcher/cli.py:61
+#, python-format
+msgid "print only the summary, not the details"
+msgstr ""
+
+#: slsbpatcher/gui.py:827
+#, python-format
+msgid "Problems (%(n)d)"
+msgstr ""
+
+#: slsbpatcher/engine.py:626
+#, python-format
+msgid "Problems:"
+msgstr ""
+
+#: slsbpatcher/gui.py:1263
+#, python-format
+msgid "Program"
+msgstr ""
+
+#: slsbpatcher/engine.py:341
+#, python-format
+msgid "re-convert %(json)s: %(registry)s is already replaced by %(by)s; the new registry is written beside it"
+msgstr ""
+
+#: slsbpatcher/gui.py:498
+#, python-format
+msgid "Re-convert (build its registry again, replacing the old one)"
+msgstr ""
+
+#: slsbpatcher/gui.py:632
+#, python-format
+msgid "re-convert: replaces its registry"
+msgstr ""
+
+#: slsbpatcher/gui.py:630
+#, python-format
+msgid "re-converted: %(scenes)s, replaces its registry"
+msgstr ""
+
+#: slsbpatcher/gui.py:875
+#, python-format
+msgid "Reading the load order..."
+msgstr ""
+
+#: slsbpatcher/gui.py:430
+#, python-format
+msgid "Refresh preview"
+msgstr ""
+
+#: slsbpatcher/gui.py:1083
+#: slsbpatcher/gui.py:1100
+#: slsbpatcher/gui.py:1130
+#, python-format
+msgid "Remove"
+msgstr ""
+
+#: slsbpatcher/gui.py:517
+#, python-format
+msgid "Remove this added log"
+msgstr ""
+
+#: slsbpatcher/gui.py:324
+#, python-format
+msgid "Removed"
+msgstr ""
+
+#: slsbpatcher/gui.py:318
+#, python-format
+msgid "Report"
+msgstr ""
+
+#: slsbpatcher/cli.py:60
+#, python-format
+msgid "report what would change, write nothing"
+msgstr ""
+
+#: slsbpatcher/gui.py:1163
+#, python-format
+msgid "Restart slsbPatcher for a new language to take effect."
+msgstr ""
+
+#: slsbpatcher/gui.py:814
+#, python-format
+msgid "right-click a pack: Re-convert adds the rest"
+msgstr ""
+
+#: slsbpatcher/gui.py:335
+#: slsbpatcher/gui.py:946
+#: slsbpatcher/gui.py:922
+#, python-format
+msgid "Run"
+msgstr ""
+
+#: slsbpatcher/gui.py:946
+#, python-format
+msgid "Run (nothing to write)"
+msgstr ""
+
+#: slsbpatcher/scenebuilder.py:56
+#, python-format
+msgid "scene_builder_cli %(command)s failed: %(output)s"
+msgstr ""
+
+#: slsbpatcher/gui.py:823
+#, python-format
+msgid "Scenes in the logs that are not installed (%(n)d)"
+msgstr ""
+
+#: slsbpatcher/gui.py:462
+#, python-format
+msgid "Settings: %(settings)s"
+msgstr ""
+
+#: argparse
+#, python-format
+msgid "show program's version number and exit"
+msgstr ""
+
+#: argparse
+#, python-format
+msgid "show this help message and exit"
+msgstr ""
+
+#: slsbpatcher/engine.py:601
+#, python-format
+msgid "SLAL animation jsons:"
+msgstr ""
+
+#: slsbpatcher/gui.py:278
+#: slsbpatcher/gui.py:696
+#, python-format
+msgid "SLAL packs and registries"
+msgstr ""
+
+#: slsbpatcher/gui.py:1217
+#, python-format
+msgid "SLATE action log"
+msgstr ""
+
+#: slsbpatcher/gui.py:292
+#: slsbpatcher/gui.py:1216
+#: slsbpatcher/gui.py:714
+#, python-format
+msgid "SLATE action logs"
+msgstr ""
+
+#: slsbpatcher/cli.py:57
+#, python-format
+msgid "slsb-convert.py -sf"
+msgstr ""
+
+#: slsbpatcher/__main__.py:13
+#, python-format
+msgid ""
+"slsbPatcher-cli.exe is slsbPatcher's command line. For the window, start slsbPatcher.exe.\n"
+"\n"
+"    slsbPatcher-cli \"C:\\Modding\\MO2\\profiles\\Default\"\n"
+"    slsbPatcher-cli --help\n"
+""
+msgstr ""
+
+#: slsbpatcher/gui.py:1120
+#, python-format
+msgid "Stricter futa (slsb-convert.py -sf: no extra futa flag on strap-on positions)"
+msgstr ""
+
+#: slsbpatcher/gui.py:777
+#, python-format
+msgid "Tags changed"
+msgstr ""
+
+#: slsbpatcher/gui.py:1234
+#, python-format
+msgid "That folder has no file with a slate.actionlog list."
+msgstr ""
+
+#: slsbpatcher/gui.py:1135
+#, python-format
+msgid "the bundled one: %(path)s"
+msgstr ""
+
+#: slsbpatcher/gui.py:1150
+#, python-format
+msgid "The folder is replaced on every run. Installed in MO2, the default is the mod \"%(mod)s\" in MO2's mods folder, which MO2 lists once slsbPatcher closes."
+msgstr ""
+
+#: slsbpatcher/gui.py:1053
+#, python-format
+msgid "The language takes effect after slsbPatcher is restarted."
+msgstr ""
+
+#: slsbpatcher/__main__.py:30
+#, python-format
+msgid "The window is slsbPatcher.exe."
+msgstr ""
+
+#: slsbpatcher/gui.py:962
+#, python-format
+msgid "Then run Pandora."
+msgstr ""
+
+#: slsbpatcher/gui.py:434
+#, python-format
+msgid "Tick all logs"
+msgstr ""
+
+#: slsbpatcher/gui.py:432
+#, python-format
+msgid "Tick all packs"
+msgstr ""
+
+#: slsbpatcher/slr.py:143
+#, python-format
+msgid "unexpected data after the last scene"
+msgstr ""
+
+#: slsbpatcher/slr.py:61
+#, python-format
+msgid "unexpected end of file"
+msgstr ""
+
+#: slsbpatcher/gui.py:135
+#, python-format
+msgid "unreadable: %(error)s"
+msgstr ""
+
+#: argparse
+#, python-format
+msgid "unrecognized arguments: %s"
+msgstr ""
+
+#: slsbpatcher/slr.py:139
+#, python-format
+msgid "unsupported registry version %(version)d"
+msgstr ""
+
+#: slsbpatcher/gui.py:435
+#, python-format
+msgid "Untick all logs"
+msgstr ""
+
+#: slsbpatcher/gui.py:433
+#, python-format
+msgid "Untick all packs"
+msgstr ""
+
+#: slsbpatcher/gui.py:616
+#, python-format
+msgid "up to date"
+msgstr ""
+
+#: argparse
+#, python-format
+msgid "usage: "
+msgstr ""
+
+#: slsbpatcher/gui.py:323
+#, python-format
+msgid "What"
+msgstr ""
+
+#: slsbpatcher/gui.py:283
+#: slsbpatcher/gui.py:297
+#, python-format
+msgid "What happens"
+msgstr ""
+
+#: slsbpatcher/gui.py:1103
+#, python-format
+msgid "What to do"
+msgstr ""
+
+#: slsbpatcher/cli.py:41
+#, python-format
+msgid "when patching, also apply lines naming one of P+'s 55 official tags (skipped by default, as SLATE NG does: P+ reads those per stage)"
+msgstr ""
+
+#: slsbpatcher/gui.py:1109
+#, python-format
+msgid "When patching, also apply lines naming P+ official tags (anal, leadin, oral ...) to every stage"
+msgstr ""
+
+#: slsbpatcher/gui.py:803
+#, python-format
+msgid "Will convert (%(n)d)"
+msgstr ""
+
+#: slsbpatcher/gui.py:870
+#: slsbpatcher/gui.py:921
+#, python-format
+msgid "Working..."
+msgstr ""
+
+#: slsbpatcher/gui.py:957
+#, python-format
+msgid "Wrote %(files)s to %(out)s. Install that folder as a mod with the highest priority."
+msgstr ""
+
+#: slsbpatcher/gui.py:954
+#, python-format
+msgid "Wrote %(files)s to the mod \"%(mod)s\". Close slsbPatcher so MO2 picks it up."
+msgstr ""

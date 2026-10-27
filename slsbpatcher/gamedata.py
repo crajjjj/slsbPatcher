@@ -24,6 +24,10 @@ import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from . import i18n
+
+_ = i18n._
+
 OUTPUT_MARKER = ("slsbPatcher", "manifest.json")  # inside our own output; that layer is skipped
 
 
@@ -270,14 +274,14 @@ def mo2_layers(folder: Path) -> list[Layer] | None:
 def layers_for_input(folder: Path) -> list[Layer]:
     folder = folder.resolve()
     if not folder.is_dir():
-        raise FileNotFoundError(f"not a folder: {folder}")
+        raise FileNotFoundError(_("not a folder: %(path)s") % {"path": folder})
     mo2 = mo2_layers(folder)
     if mo2 is not None:
         return mo2
     if looks_like_data(folder):
         return [Layer(folder.name, folder)]
     layers = []
-    for dirpath, dirnames, _ in os.walk(folder):
+    for dirpath, dirnames, _files in os.walk(folder):
         dirnames.sort()
         here = Path(dirpath)
         if here != folder and (_child(here, "SLAnims") or _child(here, "SKSE")):

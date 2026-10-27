@@ -250,6 +250,58 @@ one) stay in the FNIS list, but Scene Builder 3's behavior generator does not ac
 | `-s`, `--summary` | print only the summary of the report |
 | `--scene-builder EXE` | a different `scene_builder_cli.exe` |
 
+## Language
+
+The window and the command line follow the language of Windows; English is the fallback.
+To use another one, pick it in **Menu > Options → Interface → Language**, pass `--lang zh_CN`, or set
+`SLSBPATCHER_LANG=zh_CN`. A new language takes effect the next time slsbPatcher starts.
+
+```
+py -m slsbpatcher --lang zh_CN            # the window
+slsbPatcher-cli.exe --lang zh_CN ...      # the command line
+```
+
+### Translating
+
+The text is in `slsbpatcher/locale/<lang>/LC_MESSAGES/slsbpatcher.po`; there is no build
+step, so the file a translator edits is the file the program reads. `msgid` is the English
+sentence and stays as it is; only `msgstr` is translated. `%(name)s` marks a value that is
+filled in later — keep every placeholder, and feel free to reorder them to suit the language.
+
+```
+py scripts/i18n.py extract   # refresh slsbpatcher/locale/slsbpatcher.pot from the source
+py scripts/i18n.py check     # fail on a missing entry, a fuzzy line, a changed placeholder...
+py scripts/i18n.py stats     # how much of each language is done
+```
+
+A translation is rejected when a placeholder is missing or renamed, when a line is more than
+the console can show in a non-Unicode Windows code page, or when it is marked `#, fuzzy`
+(that mark means the English changed and the text above it is stale).
+
+Chinese needs no plural handling: its `.po` declares `nplurals=1`, so one `msgstr[0]`
+covers every count.
+
+### Changing a few lines without a new build
+
+A `.po` file of your own overrides single lines of the built-in translation; the rest stays
+as shipped. Put it in either place — the later one wins:
+
+```
+<folder of slsbPatcher.exe>/locale/zh_CN/LC_MESSAGES/slsbpatcher.po
+%APPDATA%/slsbPatcher/locale/zh_CN/LC_MESSAGES/slsbpatcher.po
+```
+
+A file holding one entry changes one line:
+
+```po
+msgid "  Patching is off."
+msgstr "  未进行打补丁。"
+```
+
+This is safe to take from anyone: a `.po` cannot run code or read files. The worst it can
+do is show the wrong words. If the English of an entry changes in a later version, that
+entry falls back to English instead of showing an outdated translation.
+
 ## Building from source
 
 ```

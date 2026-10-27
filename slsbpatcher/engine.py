@@ -22,6 +22,10 @@ from datetime import datetime
 from pathlib import Path
 
 from . import __version__, actionlog, convert, gamedata, patcher, scenebuilder, slr
+from . import i18n
+
+_ = i18n._
+_n = i18n._n
 
 log = logging.getLogger("slsbpatcher")
 MAX_NAMES = 40
@@ -158,18 +162,18 @@ def read_extra_logs(paths: list[Path]) -> tuple[list[actionlog.LogFile], list[st
         try:
             items = sorted(p for p in path.iterdir() if p.suffix.lower() == ".json") if path.is_dir() else [path]
         except OSError as error:
-            problems.append(f"{path}: {error}")
+            problems.append(_("%(path)s: %(error)s") % {"path": path, "error": error})
             continue
         for item in items:
             try:
                 log_file = actionlog.read_log_file(item)
             except OSError as error:
-                problems.append(f"{item}: {error}")
+                problems.append(_("%(path)s: %(error)s") % {"path": item, "error": error})
                 continue
             if log_file:
                 files.append(log_file)
             elif path.is_file():
-                problems.append(f"{item} has no slate.actionlog list")
+                problems.append(_("%(file)s has no slate.actionlog list") % {"file": item})
     return files, problems
 
 
@@ -180,13 +184,15 @@ def _load_registries(data: gamedata.GameData, problems: list[str]) -> list[Regis
             raw = winner.path.read_bytes()
             registries.append(Registry(winner, raw, slr.parse_slr(raw)))
         except (OSError, slr.SlrError) as error:
-            problems.append(f"{winner.rel} ({winner.layer.name}): unreadable, {error}")
+            problems.append(_("%(rel)s (%(mod)s): unreadable, %(error)s") % {
+                "rel": winner.rel, "mod": winner.layer.name, "error": error})
     projects = []
     for winner in data.files("skse/sexlab/registry/", ".slsb.json"):
         try:
             projects.append((winner, json.loads(winner.path.read_text(encoding="utf-8-sig"))))
         except (OSError, ValueError, UnicodeDecodeError) as error:
-            problems.append(f"{winner.rel} ({winner.layer.name}): unreadable project, {error}")
+            problems.append(_("%(rel)s (%(mod)s): unreadable project, %(error)s") % {
+                "rel": winner.rel, "mod": winner.layer.name, "error": error})
     # A registry's project is the one whose scene ids it holds: file names differ
     # (FunnyBiznessBound.slsb.json builds FunnyBizBound.slr).
     for registry in registries:
@@ -213,10 +219,11 @@ def _load_slal(data: gamedata.GameData, registries: list[Registry], problems: li
                           for stage in actor.get("stages", [])} - {""}
                 animations.append((animation.get("name", ""), events))
         except (OSError, ValueError, AttributeError, TypeError) as error:
-            problems.append(f"{winner.rel} ({winner.layer.name}): unreadable SLAL json, {error}")
+            problems.append(_("%(rel)s (%(mod)s): unreadable SLAL json, %(error)s") % {
+                "rel": winner.rel, "mod": winner.layer.name, "error": error})
             continue
         item = SlalJson(winner, animations)
-        for _, events in animations:
+        for _name, events in animations:
             owners = set().union(*(event_owner.get(e, set()) for e in events)) if events else set()
             if owners:
                 item.covered += 1
@@ -235,7 +242,8 @@ def scan(inputs: list[Path], extra_logs: list[Path]) -> Scan:
         try:
             log_file = actionlog.read_log_file(winner.path, f"{winner.path.name} ({winner.layer.name})")
         except OSError as error:
-            problems.append(f"{winner.rel} ({winner.layer.name}): unreadable, {error}")
+            problems.append(_("%(rel)s (%(mod)s): unreadable, %(error)s") % {
+                "rel": winner.rel, "mod": winner.layer.name, "error": error})
             continue
         if log_file:
             log_file.layer = winner.layer.name
@@ -263,14 +271,11 @@ def out_is_usable(out: Path) -> bool:
     return not out.exists() or not any(out.iterdir()) or (out / gamedata.OUTPUT_MARKER[0] / gamedata.OUTPUT_MARKER[1]).is_file()
 
 
-def _plural(count: int, one: str, many: str | None = None) -> str:
-    return f"{count} {one if count == 1 else (many or one + 's')}"
-
-
 def _write_output(options: Options, outcome: Outcome, out_files: dict[str, bytes]) -> None:
     out = options.out.resolve()
     if not out_is_usable(out):
-        raise RuntimeError(f"{out} is not empty and is not an slsbPatcher output; pick another output folder")
+        raise RuntimeError(_("%(out)s is not empty and is not an slsbPatcher output; pick another output folder")
+                           % {"out": out})
     if out.exists():
         shutil.rmtree(out)
     out.mkdir(parents=True)
@@ -333,8 +338,9 @@ def execute(options: Options, found: Scan | None = None) -> Outcome:
         if reconvert and item.covered_by:
             index = item.main_registry()
             if index in replaced:
-                outcome.problems.append(f"re-convert {item.winner.path.name}: {registries[index].winner.rel} is already "
-                                        f"replaced by {replaced[index]}; the new registry is written beside it")
+                outcome.problems.append(_("re-convert %(json)s: %(registry)s is already replaced by %(by)s; "
+                                          "the new registry is written beside it") % {
+                    "json": item.winner.path.name, "registry": registries[index].winner.rel, "by": replaced[index]})
             else:
                 project = registries[index].project
                 job.replace[item.winner.path.stem.lower()] = (registries[index].winner.rel, project.rel if project else "")
@@ -380,7 +386,8 @@ def execute(options: Options, found: Scan | None = None) -> Outcome:
                     project = json.loads(path.read_text(encoding="utf-8-sig"))
                     previous[project.get("pack_name")] = project
                 except (OSError, ValueError, UnicodeDecodeError) as error:
-                    outcome.problems.append(f"{path}: not used as an earlier conversion, {error}")
+                    outcome.problems.append(_("%(path)s: not used as an earlier conversion, %(error)s")
+                                            % {"path": path, "error": error})
         exe = scenebuilder.find(options.scene_builder)
         work = Path(tempfile.mkdtemp(prefix="slsbpatcher-"))
         try:
@@ -389,7 +396,8 @@ def execute(options: Options, found: Scan | None = None) -> Outcome:
             taken = {rel.lower() for rel in out_files}
             for rel, path in result.files.items():
                 if rel.lower() in taken:
-                    outcome.problems.append(f"{rel}: written by both the patch and a conversion; kept the conversion")
+                    outcome.problems.append(_("%(rel)s: written by both the patch and a conversion; "
+                                              "kept the conversion") % {"rel": rel})
                 out_files[rel] = path.read_bytes()
         finally:
             shutil.rmtree(work, ignore_errors=True)
@@ -438,128 +446,182 @@ def summarize(o: Outcome, layers: int, reconverted: bool, seconds: float) -> lis
     """The high-level report: what was patched and converted, by mod, by log and by tag."""
     lines = [f"slsbPatcher {__version__}, {datetime.now():%Y-%m-%d %H:%M}", "", "SUMMARY"]
     log_lines = sum(len(f.lines) for f in o.logs)
-    lines.append(f"  Read {_plural(len(o.logs), 'action log')} ({_plural(log_lines, 'line')}) and "
-                 f"{_plural(o.registries, 'registry', 'registries')} from {_plural(layers, 'mod')}.")
+    lines.append(_("  Read %(logs)s (%(lines)s) and %(registries)s from %(mods)s.") % {
+        "logs": _n("%(n)d action log", "%(n)d action logs", len(o.logs)) % {"n": len(o.logs)},
+        "lines": _n("%(n)d line", "%(n)d lines", log_lines) % {"n": log_lines},
+        "registries": _n("%(n)d registry", "%(n)d registries", o.registries) % {"n": o.registries},
+        "mods": _n("%(n)d mod", "%(n)d mods", layers) % {"n": layers},
+    })
 
     if not o.options.patch:
-        lines.append("  Patching is off.")
+        lines.append(_("  Patching is off."))
     elif o.patched:
         changes = [c for p in o.patched for c in p.changes]
         added = sum(c.added for c in changes)
         scenes = sum(len(p.scenes) for p in o.patched)
-        lines.append(f"  Patched {len(o.patched)} of {_plural(o.registries, 'registry', 'registries')}: "
-                     f"{_plural(added, 'tag')} added, {len(changes) - added} removed, in {_plural(scenes, 'scene')}.")
-        lines.append("    By mod:")
+        lines.append(_("  Patched %(patched)d of %(total)s: %(added)s added, %(removed)d removed, in %(scenes)s.") % {
+            "patched": len(o.patched),
+            "total": _n("%(n)d registry", "%(n)d registries", o.registries) % {"n": o.registries},
+            "added": _n("%(n)d tag", "%(n)d tags", added) % {"n": added},
+            "removed": len(changes) - added,
+            "scenes": _n("%(n)d scene", "%(n)d scenes", scenes) % {"n": scenes},
+        })
+        lines.append(_("    By mod:"))
         for mod, items in by_mod(o.patched):
-            lines.append(f"      {mod}: {_plural(len(items), 'registry', 'registries')}, "
-                         f"+{sum(p.added for p in items)} -{sum(p.removed for p in items)}")
-        lines.append("    By action log:")
+            lines.append(_("      %(mod)s: %(registries)s, +%(added)d -%(removed)d") % {
+                "mod": mod,
+                "registries": _n("%(n)d registry", "%(n)d registries", len(items)) % {"n": len(items)},
+                "added": sum(p.added for p in items),
+                "removed": sum(p.removed for p in items),
+            })
+        lines.append(_("    By action log:"))
         for f in o.logs:
             items = [c for c in changes if c.log == f.path.name]
-            text = (f"+{sum(c.added for c in items)} -{sum(not c.added for c in items)}" if items
-                    else "no changes (already in the registries, or for scenes not installed)")
-            lines.append(f"      {f.path.name}: {text}")
+            if items:
+                lines.append(_("      %(log)s: +%(added)d -%(removed)d") % {
+                    "log": f.path.name,
+                    "added": sum(c.added for c in items),
+                    "removed": sum(not c.added for c in items),
+                })
+            else:
+                lines.append(_("      %(log)s: no changes (already in the registries, or for scenes not installed)")
+                             % {"log": f.path.name})
         top = tag_counts(o.patched)
         shown = ", ".join(f"{tag} x{count}" for tag, count in top[:12])
-        lines.append(f"    Tags: {shown}{f', and {len(top) - 12} more' if len(top) > 12 else ''}")
+        lines.append(_("    Tags: %(tags)s, and %(more)d more") % {"tags": shown, "more": len(top) - 12}
+                     if len(top) > 12 else _("    Tags: %(tags)s") % {"tags": shown})
     elif not o.logs:
-        lines.append("  Nothing to patch: no action logs were read.")
+        lines.append(_("  Nothing to patch: no action logs were read."))
     elif not o.registries:
-        lines.append("  Nothing to patch: no registries in the load order.")
+        lines.append(_("  Nothing to patch: no registries in the load order."))
     else:
-        lines.append(f"  Nothing to patch: all {_plural(o.registries, 'registry', 'registries')} already match the logs.")
+        lines.append(_("  Nothing to patch: all %(total)s already match the logs.") % {
+            "total": _n("%(n)d registry", "%(n)d registries", o.registries) % {"n": o.registries}})
 
     if o.left_alone_packs or o.left_alone_registries:
-        lines.append(f"  Left alone (unticked): {_plural(len(o.left_alone_packs), 'SLAL pack')}, "
-                     f"{_plural(len(o.left_alone_registries), 'registry', 'registries')}.")
+        lines.append(_("  Left alone (unticked): %(packs)s, %(registries)s.") % {
+            "packs": _n("%(n)d SLAL pack", "%(n)d SLAL packs", len(o.left_alone_packs)) % {
+                "n": len(o.left_alone_packs)},
+            "registries": _n("%(n)d registry", "%(n)d registries", len(o.left_alone_registries)) % {
+                "n": len(o.left_alone_registries)},
+        })
 
     if o.produced:
         scenes = sum(len(p.scenes) for p in o.produced)
-        lines.append(f"  Converted {_plural(len(o.produced), 'SLAL json')} into new registries ({_plural(scenes, 'scene')}):")
+        lines.append(_("  Converted %(jsons)s into new registries (%(scenes)s):") % {
+            "jsons": _n("%(n)d SLAL json", "%(n)d SLAL jsons", len(o.produced)) % {"n": len(o.produced)},
+            "scenes": _n("%(n)d scene", "%(n)d scenes", scenes) % {"n": scenes},
+        })
         groups: dict[str, list[convert.Produced]] = {}
         for p in o.produced:
             groups.setdefault(p.module, []).append(p)
         for mod, items in groups.items():
-            lines.append(f"      {mod}: {', '.join(p.slr_rel.rsplit('/', 1)[-1] for p in items)}")
+            lines.append("      %(mod)s: %(slrs)s" % {
+                "mod": mod, "slrs": ", ".join(p.slr_rel.rsplit('/', 1)[-1] for p in items)})
         if reconverted:
-            lines.append("    A re-conversion takes its tags only from the logs read in this run.")
+            lines.append(_("    A re-conversion takes its tags only from the logs read in this run."))
     elif o.would_convert:
-        names = ", ".join(name for name, _ in o.would_convert[:8])
-        lines.append(f"  Would convert {_plural(len(o.would_convert), 'SLAL json')}: {names}"
-                     f"{' ...' if len(o.would_convert) > 8 else ''}")
+        names = ", ".join(name for name, _name in o.would_convert[:8])
+        lines.append(_("  Would convert %(jsons)s: %(names)s%(more)s") % {
+            "jsons": _n("%(n)d SLAL json", "%(n)d SLAL jsons", len(o.would_convert)) % {"n": len(o.would_convert)},
+            "names": names,
+            "more": " ..." if len(o.would_convert) > 8 else "",
+        })
     elif not o.options.convert:
-        lines.append("  Converting is off.")
+        lines.append(_("  Converting is off."))
     elif not o.partial:
-        lines.append("  Every SLAL pack already has a conversion.")
+        lines.append(_("  Every SLAL pack already has a conversion."))
 
     if o.partial:
         missing = sum(len(p.missing) for p in o.partial)
         names = ", ".join(f"{p.json_name} ({len(p.missing)})" for p in o.partial)
-        lines.append(f"  {_plural(len(o.partial), 'SLAL json is', 'SLAL jsons are')} only partly converted "
-                     f"({_plural(missing, 'animation')} in no registry; re-convert to add them): {names}")
+        lines.append(_("  %(jsons)s only partly converted (%(missing)s in no registry; re-convert to add them): %(names)s") % {
+            "jsons": _n("%(n)d SLAL json is", "%(n)d SLAL jsons are", len(o.partial)) % {"n": len(o.partial)},
+            "missing": _n("%(n)d animation", "%(n)d animations", missing) % {"n": missing},
+            "names": names,
+        })
     if o.unmatched:
-        lines.append(f"  {_plural(len(o.unmatched), 'scene')} named in the logs are not installed (listed in the details).")
+        lines.append(_("  %(scenes)s named in the logs are not installed (listed in the details).") % {
+            "scenes": _n("%(n)d scene", "%(n)d scenes", len(o.unmatched)) % {"n": len(o.unmatched)}})
     if o.skipped_official:
-        lines.append(f"  {_plural(o.skipped_official, 'log line')} naming P+ official tags were left out of the patch.")
+        lines.append(_("  %(lines)s naming P+ official tags were left out of the patch.") % {
+            "lines": _n("%(n)d log line", "%(n)d log lines", o.skipped_official) % {"n": o.skipped_official}})
     if o.problems:
-        lines.append(f"  {_plural(len(o.problems), 'problem')}, listed at the end.")
+        lines.append(_("  %(problems)s, listed at the end.") % {
+            "problems": _n("%(n)d problem", "%(n)d problems", len(o.problems)) % {"n": len(o.problems)}})
 
     if o.options.dry_run:
-        lines.append("  Preview only: nothing was written.")
+        lines.append(_("  Preview only: nothing was written."))
     elif o.out:
-        lines.append(f"  Wrote {_plural(o.written, 'file')} to {o.out}")
-        lines.append("  Install that folder as a mod with the highest priority (MO2: bottom of the left pane).")
-        lines.append("  Keep the mods it was made from enabled: the output holds only the files that changed.")
+        lines.append(_("  Wrote %(files)s to %(out)s") % {
+            "files": _n("%(n)d file", "%(n)d files", o.written) % {"n": o.written}, "out": o.out})
+        lines.append(_("  Install that folder as a mod with the highest priority (MO2: bottom of the left pane)."))
+        lines.append(_("  Keep the mods it was made from enabled: the output holds only the files that changed."))
         if o.converted:
-            lines.append("  It holds new conversions: run Pandora (or Nemesis) afterwards, and keep the SLAL packs installed.")
+            lines.append(_("  It holds new conversions: run Pandora (or Nemesis) afterwards, "
+                           "and keep the SLAL packs installed."))
         if o.options.zip:
-            lines.append(f"  Packed {o.out.with_suffix('.zip')}")
+            lines.append(_("  Packed %(zip)s") % {"zip": o.out.with_suffix('.zip')})
     else:
-        lines.append("  Nothing to write.")
-    lines.append(f"  ({seconds:.1f} s)")
+        lines.append(_("  Nothing to write."))
+    lines.append(_("  (%(seconds).1f s)") % {"seconds": seconds})
     return lines
 
 
 def _details(o: Outcome, data: gamedata.GameData, replaced: dict[int, str]) -> list[str]:
-    lines = ["DETAILS", "", f"Inputs: {', '.join(str(p) for p in o.options.inputs)} ({len(data.layers)} mods/folders)"]
+    lines = ["DETAILS", "", _("Inputs: %(inputs)s (%(n)d mods/folders)") % {
+        "inputs": ', '.join(str(p) for p in o.options.inputs), "n": len(data.layers)}]
     if gamedata.under_mo2_vfs():
-        lines.append("  started from MO2: its virtual file system is active")
+        lines.append(_("  started from MO2: its virtual file system is active"))
     for layer in data.skipped_outputs:
-        lines.append(f"  skipped {layer.name}: an earlier slsbPatcher output, so its originals are patched instead")
-    lines += ["", f"Action logs: {len(o.logs)}"]
+        lines.append(_("  skipped %(layer)s: an earlier slsbPatcher output, so its originals are patched instead")
+                     % {"layer": layer.name})
+    lines += ["", _("Action logs: %(n)d") % {"n": len(o.logs)}]
     for f in o.logs:
-        lines.append(f"  {f.label}: {len(f.lines)} lines, {f.adds} AddTag, {f.removes} RemoveTag ({f.stage_labels} stage labels); "
-                     f"skipped {f.official_tags} P+ official tags, {f.disables} Disable, {f.comments} comments, {f.invalid} invalid")
-    lines += ["", f"Existing conversions: {o.registries} registries"]
+        lines.append(_("  %(log)s: %(lines)d lines, %(adds)d AddTag, %(removes)d RemoveTag (%(labels)d stage "
+                       "labels); skipped "
+                       "%(official)d P+ official tags, %(disables)d Disable, %(comments)d comments, %(invalid)d invalid") % {
+            "log": f.label,
+            "lines": len(f.lines), "adds": f.adds, "removes": f.removes, "labels": f.stage_labels,
+            "official": f.official_tags, "disables": f.disables, "comments": f.comments, "invalid": f.invalid,
+        })
+    lines += ["", _("Existing conversions: %(n)d registries") % {"n": o.registries}]
     for name in replaced.values():
-        lines.append(f"  re-converted from {name}, not patched")
+        lines.append(_("  re-converted from %(json)s, not patched") % {"json": name})
     for p in o.patched:
-        lines.append(f"  patched {p.rel} ({p.mod}): +{p.added} -{p.removed}")
+        lines.append(_("  patched %(rel)s (%(mod)s): +%(added)d -%(removed)d") % {
+            "rel": p.rel, "mod": p.mod, "added": p.added, "removed": p.removed})
         lines.extend(f"      {change}  [{change.log}]" for change in p.changes)
         if p.project_rel:
-            lines.append(f"      and its project {p.project_rel}")
+            lines.append(_("      and its project %(rel)s") % {"rel": p.project_rel})
     if o.options.patch:
-        lines.append(f"  {o.up_to_date} already up to date")
+        lines.append(_("  %(n)d already up to date") % {"n": o.up_to_date})
     for rel in o.left_alone_registries:
-        lines.append(f"  {rel}: left alone (unticked)")
-    lines += ["", "SLAL animation jsons:"]
+        lines.append(_("  %(rel)s: left alone (unticked)") % {"rel": rel})
+    lines += ["", _("SLAL animation jsons:")]
     for name in o.left_alone_packs:
-        lines.append(f"  {name}: left alone (unticked)")
+        lines.append(_("  %(name)s: left alone (unticked)") % {"name": name})
     for p in o.produced:
-        lines.append(f"  converted {p.json_name} ({p.module}) -> {p.slr_rel}, {len(p.scenes)} scenes")
+        lines.append(_("  converted %(json)s (%(mod)s) -> %(slr)s, %(n)d scenes") % {
+            "json": p.json_name, "mod": p.module, "slr": p.slr_rel, "n": len(p.scenes)})
     for name, mod in o.would_convert:
-        lines.append(f"  would convert {name} ({mod})")
+        lines.append(_("  would convert %(json)s (%(mod)s)") % {"json": name, "mod": mod})
     for p in o.partial:
-        lines.append(f"  {p.json_name} ({p.mod}): {p.covered} of {p.total} animations are in an installed registry; "
-                     f"not in one: {', '.join(p.missing[:10])}{' ...' if len(p.missing) > 10 else ''}")
+        lines.append(_("  %(json)s (%(mod)s): %(covered)d of %(total)d animations are in an installed registry; "
+                       "not in one: %(names)s") % {
+            "json": p.json_name, "mod": p.mod, "covered": p.covered, "total": p.total,
+            "names": ', '.join(p.missing[:10]) + (" ..." if len(p.missing) > 10 else ""),
+        })
     if o.unmatched:
-        lines += ["", f"{len(o.unmatched)} scenes named in the action logs are in no registry or conversion:"]
+        lines += ["", _("%(n)d scenes named in the action logs are in no registry or conversion:")
+                  % {"n": len(o.unmatched)}]
         lines.extend(f"  {name}" for name in o.unmatched[:MAX_NAMES])
         if len(o.unmatched) > MAX_NAMES:
-            lines.append(f"  ... and {len(o.unmatched) - MAX_NAMES} more")
+            lines.append(_("  ... and %(n)d more") % {"n": len(o.unmatched) - MAX_NAMES})
     if o.skipped_official:
-        lines += ["", f"{o.skipped_official} action log lines name a P+ official tag and were not patched in "
-                      "(turn on official tags to apply them scene-wide). New conversions read them as slsb-convert.py does."]
+        lines += ["", _("%(n)d action log lines name a P+ official tag and were not patched in (turn on official "
+                        "tags to apply them scene-wide). New conversions read them as slsb-convert.py does.")
+                  % {"n": o.skipped_official}]
     if o.problems:
-        lines += ["", "Problems:"] + [f"  {p}" for p in o.problems]
+        lines += ["", _("Problems:")] + ["  %s" % p for p in o.problems]
     return lines

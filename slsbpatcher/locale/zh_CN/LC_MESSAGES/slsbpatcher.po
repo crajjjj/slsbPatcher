@@ -1,0 +1,1446 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: slsbPatcher 0.1.2\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: slsbpatcher/console.py:35
+#, python-format
+msgid ""
+"\n"
+"Press Enter to close this window."
+msgstr ""
+"\n"
+"按 Enter 键关闭此窗口。"
+
+#: slsbpatcher/engine.py:481
+#, python-format
+msgid "      %(log)s: +%(added)d -%(removed)d"
+msgstr "      %(log)s: +%(added)d -%(removed)d"
+
+#: slsbpatcher/engine.py:487
+#, python-format
+msgid "      %(log)s: no changes (already in the registries, or for scenes not installed)"
+msgstr "      %(log)s：无改动（已在注册表中，或对应场景未安装）"
+
+#: slsbpatcher/engine.py:471
+#, python-format
+msgid "      %(mod)s: %(registries)s, +%(added)d -%(removed)d"
+msgstr "      %(mod)s: %(registries)s, +%(added)d -%(removed)d"
+
+#: slsbpatcher/engine.py:596
+#, python-format
+msgid "      and its project %(rel)s"
+msgstr "      及其工程 %(rel)s"
+
+#: slsbpatcher/engine.py:522
+#, python-format
+msgid "    A re-conversion takes its tags only from the logs read in this run."
+msgstr "    重新转换只取本次运行读取的日志中的标签。"
+
+#: slsbpatcher/engine.py:477
+#, python-format
+msgid "    By action log:"
+msgstr "    按动作日志："
+
+#: slsbpatcher/engine.py:469
+#, python-format
+msgid "    By mod:"
+msgstr "    按模组："
+
+#: slsbpatcher/engine.py:492
+#, python-format
+msgid "    Tags: %(tags)s"
+msgstr "    标签：%(tags)s"
+
+#: slsbpatcher/engine.py:491
+#, python-format
+msgid "    Tags: %(tags)s, and %(more)d more"
+msgstr "    标签：%(tags)s，另有 %(more)d 个"
+
+#: slsbpatcher/engine.py:610
+#, python-format
+msgid "  %(json)s (%(mod)s): %(covered)d of %(total)d animations are in an installed registry; not in one: %(names)s"
+msgstr "  %(json)s (%(mod)s)：%(total)d 个动画中有 %(covered)d 个位于已安装的注册表中；不在其中：%(names)s"
+
+#: slsbpatcher/engine.py:538
+#, python-format
+msgid "  %(jsons)s only partly converted (%(missing)s in no registry; re-convert to add them): %(names)s"
+msgstr "  %(jsons)s 仅部分转换（%(missing)s 不在任何注册表中；重新转换可补上）：%(names)s"
+
+#: slsbpatcher/engine.py:547
+#, python-format
+msgid "  %(lines)s naming P+ official tags were left out of the patch."
+msgstr "  %(lines)s 涉及 P+ 官方标签，已从补丁中排除。"
+
+#: slsbpatcher/engine.py:581
+#, python-format
+msgid "  %(log)s: %(lines)d lines, %(adds)d AddTag, %(removes)d RemoveTag (%(labels)d stage labels); skipped %(official)d P+ official tags, %(disables)d Disable, %(comments)d comments, %(invalid)d invalid"
+msgstr "  %(log)s：%(lines)d 行，%(adds)d 个 AddTag，%(removes)d 个 RemoveTag（%(labels)d 个阶段标签）；跳过 %(official)d 个 P+ 官方标签、%(disables)d 个 Disable、%(comments)d 条注释、%(invalid)d 条无效"
+
+#: slsbpatcher/engine.py:598
+#, python-format
+msgid "  %(n)d already up to date"
+msgstr "  %(n)d 个已是最新"
+
+#: slsbpatcher/engine.py:603
+#, python-format
+msgid "  %(name)s: left alone (unticked)"
+msgstr "  %(name)s：保持原样（未勾选）"
+
+#: slsbpatcher/engine.py:550
+#, python-format
+msgid "  %(problems)s, listed at the end."
+msgstr "  %(problems)s，列在末尾。"
+
+#: slsbpatcher/engine.py:600
+#, python-format
+msgid "  %(rel)s: left alone (unticked)"
+msgstr "  %(rel)s：保持原样（未勾选）"
+
+#: slsbpatcher/engine.py:544
+#, python-format
+msgid "  %(scenes)s named in the logs are not installed (listed in the details)."
+msgstr "  日志中提到的 %(scenes)s未安装（列在详情中）。"
+
+#: slsbpatcher/engine.py:567
+#, python-format
+msgid "  (%(seconds).1f s)"
+msgstr "  （%(seconds).1f 秒）"
+
+#: slsbpatcher/engine.py:620
+#, python-format
+msgid "  ... and %(n)d more"
+msgstr "  …另有 %(n)d 个"
+
+#: slsbpatcher/engine.py:605
+#, python-format
+msgid "  converted %(json)s (%(mod)s) -> %(slr)s, %(n)d scenes"
+msgstr "  已转换 %(json)s (%(mod)s) -> %(slr)s，%(n)d 个场景"
+
+#: slsbpatcher/engine.py:511
+#, python-format
+msgid "  Converted %(jsons)s into new registries (%(scenes)s):"
+msgstr "  已将 %(jsons)s 转换为新注册表（%(scenes)s）："
+
+#: slsbpatcher/engine.py:531
+#, python-format
+msgid "  Converting is off."
+msgstr "  转换已关闭。"
+
+#: slsbpatcher/engine.py:533
+#, python-format
+msgid "  Every SLAL pack already has a conversion."
+msgstr "  每个 SLAL 包都已有转换结果。"
+
+#: slsbpatcher/engine.py:558
+#, python-format
+msgid "  Install that folder as a mod with the highest priority (MO2: bottom of the left pane)."
+msgstr "  把该文件夹作为模组安装，并置于最高优先级（MO2：左侧栏最底部）。"
+
+#: slsbpatcher/engine.py:561
+#, python-format
+msgid "  It holds new conversions: run Pandora (or Nemesis) afterwards, and keep the SLAL packs installed."
+msgstr "  其中包含新的转换结果：之后请运行 Pandora（或 Nemesis），并保持 SLAL 包处于安装状态。"
+
+#: slsbpatcher/engine.py:559
+#, python-format
+msgid "  Keep the mods it was made from enabled: the output holds only the files that changed."
+msgstr "  保持来源模组启用：输出只包含有改动的文件。"
+
+#: slsbpatcher/convert.py:218
+#, python-format
+msgid "  kept %(n)d stage ids of the earlier conversion"
+msgstr "  保留了先前转换的 %(n)d 个阶段 id"
+
+#: slsbpatcher/engine.py:502
+#, python-format
+msgid "  Left alone (unticked): %(packs)s, %(registries)s."
+msgstr "  保持原样（未勾选）：%(packs)s、%(registries)s。"
+
+#: slsbpatcher/engine.py:498
+#, python-format
+msgid "  Nothing to patch: all %(total)s already match the logs."
+msgstr "  无需打补丁：全部 %(total)s 都已与日志一致。"
+
+#: slsbpatcher/engine.py:494
+#, python-format
+msgid "  Nothing to patch: no action logs were read."
+msgstr "  无需打补丁：未读取任何动作日志。"
+
+#: slsbpatcher/engine.py:496
+#, python-format
+msgid "  Nothing to patch: no registries in the load order."
+msgstr "  无需打补丁：加载顺序中没有注册表。"
+
+#: slsbpatcher/engine.py:566
+#, python-format
+msgid "  Nothing to write."
+msgstr "  无需写入。"
+
+#: slsbpatcher/engine.py:564
+#, python-format
+msgid "  Packed %(zip)s"
+msgstr "  已打包 %(zip)s"
+
+#: slsbpatcher/engine.py:462
+#, python-format
+msgid "  Patched %(patched)d of %(total)s: %(added)s added, %(removed)d removed, in %(scenes)s."
+msgstr "  已打补丁：新增 %(added)s，移除 %(removed)d，涉及 %(scenes)s（%(patched)d/%(total)s）。"
+
+#: slsbpatcher/engine.py:592
+#, python-format
+msgid "  patched %(rel)s (%(mod)s): +%(added)d -%(removed)d"
+msgstr "  已打补丁 %(rel)s (%(mod)s)：+%(added)d -%(removed)d"
+
+#: slsbpatcher/engine.py:457
+#, python-format
+msgid "  Patching is off."
+msgstr "  打补丁已关闭。"
+
+#: slsbpatcher/engine.py:554
+#, python-format
+msgid "  Preview only: nothing was written."
+msgstr "  仅预览：未写入任何内容。"
+
+#: slsbpatcher/engine.py:590
+#, python-format
+msgid "  re-converted from %(json)s, not patched"
+msgstr "  已从 %(json)s 重新转换，未打补丁"
+
+#: slsbpatcher/engine.py:449
+#, python-format
+msgid "  Read %(logs)s (%(lines)s) and %(registries)s from %(mods)s."
+msgstr "  已从 %(mods)s读取 %(logs)s（%(lines)s）和 %(registries)s。"
+
+#: slsbpatcher/engine.py:577
+#, python-format
+msgid "  skipped %(layer)s: an earlier slsbPatcher output, so its originals are patched instead"
+msgstr "  已跳过 %(layer)s：这是先前的 slsbPatcher 输出，改为对其原始文件打补丁"
+
+#: slsbpatcher/engine.py:575
+#, python-format
+msgid "  started from MO2: its virtual file system is active"
+msgstr "  从 MO2 启动：其虚拟文件系统已生效"
+
+#: slsbpatcher/engine.py:608
+#, python-format
+msgid "  would convert %(json)s (%(mod)s)"
+msgstr "  将转换 %(json)s (%(mod)s)"
+
+#: slsbpatcher/engine.py:525
+#, python-format
+msgid "  Would convert %(jsons)s: %(names)s%(more)s"
+msgstr "  将要转换 %(jsons)s：%(names)s%(more)s"
+
+#: slsbpatcher/engine.py:556
+#, python-format
+msgid "  Wrote %(files)s to %(out)s"
+msgstr "  已将 %(files)s 写入 %(out)s"
+
+#: argparse
+#, python-format
+msgid " (default: %(default)s)"
+msgstr " （默认：%(default)s）"
+
+#: slsbpatcher/install.py:62
+#, python-format
+msgid " (started from MO2)"
+msgstr " （从 MO2 启动）"
+
+#: slsbpatcher/gui.py:936
+#, python-format
+msgid "%(count)s to convert"
+msgstr "%(count)s 待转换"
+
+#: slsbpatcher/gui.py:934
+#, python-format
+msgid "%(count)s to patch"
+msgstr "%(count)s 待打补丁"
+
+#: slsbpatcher/scenebuilder.py:46
+#, python-format
+msgid "%(exe)s not found. Put it in %(folder)s, pass --scene-builder, or set SLSB_CLI."
+msgstr "未找到 %(exe)s。请把它放进 %(folder)s，传入 --scene-builder，或设置 SLSB_CLI。"
+
+#: slsbpatcher/engine.py:176
+#, python-format
+msgid "%(file)s has no slate.actionlog list"
+msgstr "%(file)s 没有 slate.actionlog 列表"
+
+#: argparse
+#, python-format
+msgid "%(heading)s:"
+msgstr "%(heading)s："
+
+#: slsbpatcher/gui.py:114
+#, python-format
+msgid "%(lines)d (%(adds)d+ %(removes)d-)"
+msgstr "%(lines)d（+%(adds)d -%(removes)d）"
+
+#: slsbpatcher/gui.py:817
+#, python-format
+msgid "%(missing)d of %(total)d animations in no registry"
+msgstr "%(missing)d/%(total)d 个动画不在任何注册表中"
+
+#: slsbpatcher/convert.py:252
+#, python-format
+msgid "%(mod)s: %(rel)s is also produced by another pack; kept the first one"
+msgstr "%(mod)s：%(rel)s 也由另一个包生成；已保留第一个"
+
+#: slsbpatcher/convert.py:258
+#, python-format
+msgid "%(mod)s: conversion failed: %(error)s"
+msgstr "%(mod)s：转换失败：%(error)s"
+
+#: slsbpatcher/engine.py:450
+#, python-format
+msgid "%(n)d action log"
+msgid_plural "%(n)d action logs"
+msgstr[0] "%(n)d 条动作日志"
+
+#: slsbpatcher/engine.py:622
+#, python-format
+msgid "%(n)d action log lines name a P+ official tag and were not patched in (turn on official tags to apply them scene-wide). New conversions read them as slsb-convert.py does."
+msgstr "%(n)d 条动作日志中包含 P+ 官方标签，未打入补丁（开启官方标签可将其应用到整个场景）。新的转换会按 slsb-convert.py 的方式读取它们。"
+
+#: slsbpatcher/engine.py:540
+#, python-format
+msgid "%(n)d animation"
+msgid_plural "%(n)d animations"
+msgstr[0] "%(n)d 个动画"
+
+#: slsbpatcher/gui.py:126
+#, python-format
+msgid "%(n)d enabled mod"
+msgid_plural "%(n)d enabled mods"
+msgstr[0] "%(n)d 个已启用模组"
+
+#: slsbpatcher/engine.py:557
+#: slsbpatcher/gui.py:91
+#, python-format
+msgid "%(n)d file"
+msgid_plural "%(n)d files"
+msgstr[0] "%(n)d 个文件"
+
+#: slsbpatcher/gui.py:939
+#, python-format
+msgid "%(n)d left alone"
+msgstr "%(n)d 个保持原样"
+
+#: slsbpatcher/engine.py:451
+#, python-format
+msgid "%(n)d line"
+msgid_plural "%(n)d lines"
+msgstr[0] "%(n)d 行"
+
+#: slsbpatcher/engine.py:548
+#, python-format
+msgid "%(n)d log line"
+msgid_plural "%(n)d log lines"
+msgstr[0] "%(n)d 行日志"
+
+#: slsbpatcher/engine.py:453
+#, python-format
+msgid "%(n)d mod"
+msgid_plural "%(n)d mods"
+msgstr[0] "%(n)d 个模组"
+
+#: slsbpatcher/gui.py:87
+#, python-format
+msgid "%(n)d pack"
+msgid_plural "%(n)d packs"
+msgstr[0] "%(n)d 个包"
+
+#: slsbpatcher/engine.py:551
+#: slsbpatcher/gui.py:95
+#, python-format
+msgid "%(n)d problem"
+msgid_plural "%(n)d problems"
+msgstr[0] "%(n)d 个问题"
+
+#: slsbpatcher/engine.py:452
+#: slsbpatcher/engine.py:505
+#: slsbpatcher/engine.py:464
+#: slsbpatcher/engine.py:473
+#: slsbpatcher/engine.py:499
+#: slsbpatcher/gui.py:83
+#, python-format
+msgid "%(n)d registry"
+msgid_plural "%(n)d registries"
+msgstr[0] "%(n)d 个注册表"
+
+#: slsbpatcher/engine.py:513
+#: slsbpatcher/engine.py:545
+#: slsbpatcher/engine.py:467
+#: slsbpatcher/gui.py:79
+#, python-format
+msgid "%(n)d scene"
+msgid_plural "%(n)d scenes"
+msgstr[0] "%(n)d 个场景"
+
+#: slsbpatcher/gui.py:764
+#, python-format
+msgid "%(n)d scene, and its project"
+msgid_plural "%(n)d scenes, and its project"
+msgstr[0] "%(n)d 个场景（含其工程）"
+
+#: slsbpatcher/engine.py:616
+#, python-format
+msgid "%(n)d scenes named in the action logs are in no registry or conversion:"
+msgstr "动作日志中提到的 %(n)d 个场景不在任何注册表或转换结果中："
+
+#: slsbpatcher/engine.py:512
+#: slsbpatcher/engine.py:526
+#, python-format
+msgid "%(n)d SLAL json"
+msgid_plural "%(n)d SLAL jsons"
+msgstr[0] "%(n)d 个 SLAL json"
+
+#: slsbpatcher/engine.py:539
+#, python-format
+msgid "%(n)d SLAL json is"
+msgid_plural "%(n)d SLAL jsons are"
+msgstr[0] "%(n)d 个 SLAL json"
+
+#: slsbpatcher/engine.py:503
+#, python-format
+msgid "%(n)d SLAL pack"
+msgid_plural "%(n)d SLAL packs"
+msgstr[0] "%(n)d 个 SLAL 包"
+
+#: slsbpatcher/engine.py:465
+#, python-format
+msgid "%(n)d tag"
+msgid_plural "%(n)d tags"
+msgstr[0] "%(n)d 个标签"
+
+#: slsbpatcher/gui.py:861
+#, python-format
+msgid ""
+"%(out)s is not empty and is not an slsbPatcher output.\n"
+"\n"
+"Choose another output folder in Menu > Options."
+msgstr ""
+"%(out)s 不为空，且不是 slsbPatcher 输出。\n"
+"\n"
+"请在“菜单 > 选项”中选择另一个输出文件夹。"
+
+#: slsbpatcher/cli.py:86
+#, python-format
+msgid "%(out)s is not empty and is not an slsbPatcher output; pick another --out"
+msgstr "%(out)s 不为空，且不是 slsbPatcher 输出；请换一个 --out"
+
+#: slsbpatcher/engine.py:277
+#, python-format
+msgid "%(out)s is not empty and is not an slsbPatcher output; pick another output folder"
+msgstr "%(out)s 不为空，且不是 slsbPatcher 输出；请换一个输出文件夹"
+
+#: slsbpatcher/gui.py:729
+#, python-format
+msgid "%(path)s (MO2, profile %(profile)s)"
+msgstr "%(path)s（MO2，配置档案 %(profile)s）"
+
+#: slsbpatcher/engine.py:165
+#: slsbpatcher/engine.py:171
+#, python-format
+msgid "%(path)s: %(error)s"
+msgstr "%(path)s: %(error)s"
+
+#: slsbpatcher/engine.py:389
+#, python-format
+msgid "%(path)s: not used as an earlier conversion, %(error)s"
+msgstr "%(path)s：未用作先前的转换，%(error)s"
+
+#: slsbpatcher/gui.py:943
+#: slsbpatcher/gui.py:966
+#, python-format
+msgid "%(problems)s in the report."
+msgstr "报告中有 %(problems)s。"
+
+#: argparse
+#, python-format
+msgid ""
+"%(prog)s: error: %(message)s\n"
+""
+msgstr ""
+"%(prog)s：错误：%(message)s\n"
+""
+
+#: slsbpatcher/engine.py:194
+#, python-format
+msgid "%(rel)s (%(mod)s): unreadable project, %(error)s"
+msgstr "%(rel)s (%(mod)s)：无法读取工程，%(error)s"
+
+#: slsbpatcher/engine.py:222
+#, python-format
+msgid "%(rel)s (%(mod)s): unreadable SLAL json, %(error)s"
+msgstr "%(rel)s (%(mod)s)：无法读取 SLAL json，%(error)s"
+
+#: slsbpatcher/engine.py:187
+#: slsbpatcher/engine.py:245
+#, python-format
+msgid "%(rel)s (%(mod)s): unreadable, %(error)s"
+msgstr "%(rel)s (%(mod)s)：无法读取，%(error)s"
+
+#: slsbpatcher/engine.py:399
+#, python-format
+msgid "%(rel)s: written by both the patch and a conversion; kept the conversion"
+msgstr "%(rel)s：补丁和转换都写入了它；已保留转换结果"
+
+#: slsbpatcher/gui.py:799
+#, python-format
+msgid "%(scenes)s, %(module)s"
+msgstr "%(scenes)s，%(module)s"
+
+#: slsbpatcher/gui.py:646
+#, python-format
+msgid "%(status)s; %(n)d animation in no registry"
+msgid_plural "%(status)s; %(n)d animations in no registry"
+msgstr[0] "%(status)s；%(n)d 个动画不在任何注册表中"
+
+#: slsbpatcher/gui.py:695
+#: slsbpatcher/gui.py:713
+#, python-format
+msgid "%(what)s  (%(on)d of %(total)d ticked)"
+msgstr "%(what)s（已勾选 %(on)d / %(total)d）"
+
+#: slsbpatcher/gui.py:100
+#, python-format
+msgid ", "
+msgstr "、"
+
+#: slsbpatcher/gui.py:1247
+#, python-format
+msgid "A folder of *.slsb.json from an earlier conversion"
+msgstr "先前转换生成的 *.slsb.json 文件夹"
+
+#: slsbpatcher/gui.py:1224
+#, python-format
+msgid "A folder of SLATE action logs"
+msgstr "SLATE 动作日志文件夹"
+
+#: slsbpatcher/gui.py:252
+#, python-format
+msgid "About"
+msgstr "关于"
+
+#: slsbpatcher/gui.py:451
+#, python-format
+msgid "About slsbPatcher"
+msgstr "关于 slsbPatcher"
+
+#: slsbpatcher/engine.py:579
+#, python-format
+msgid "Action logs: %(n)d"
+msgstr "动作日志：%(n)d"
+
+#: slsbpatcher/gui.py:1099
+#, python-format
+msgid "Add file..."
+msgstr "添加文件…"
+
+#: slsbpatcher/gui.py:1083
+#: slsbpatcher/gui.py:1099
+#: slsbpatcher/gui.py:1129
+#, python-format
+msgid "Add folder..."
+msgstr "添加文件夹…"
+
+#: slsbpatcher/gui.py:323
+#, python-format
+msgid "Added"
+msgstr "新增"
+
+#: slsbpatcher/gui.py:1263
+#, python-format
+msgid "All"
+msgstr "全部"
+
+#: slsbpatcher/gui.py:1147
+#, python-format
+msgid "Also pack it into a .zip beside the folder"
+msgstr "同时打包为文件夹旁的 .zip"
+
+#: slsbpatcher/cli.py:59
+#, python-format
+msgid "also pack the output folder into a .zip beside it"
+msgstr "同时把输出文件夹打包为它旁边的 .zip"
+
+#: slsbpatcher/gui.py:1086
+#, python-format
+msgid "An MO2 instance or profile folder (an instance follows the profile MO2 has selected), a Data folder, or a folder of extracted SLAL packs. A lower row wins over the rows above it."
+msgstr "MO2 实例或配置档案文件夹（实例会跟随 MO2 当前选中的配置档案）、Data 文件夹，或已解压的 SLAL 包文件夹。位置更靠下的行优先于其上方的行。"
+
+#: slsbpatcher/gui.py:1189
+#, python-format
+msgid "An MO2 instance or profile folder, a Data folder, or a folder of SLAL packs"
+msgstr "MO2 实例或配置档案文件夹、Data 文件夹或 SLAL 包文件夹"
+
+#: slsbpatcher/cli.py:27
+#, python-format
+msgid "an MO2 profile or instance folder, a Data folder, or a folder of extracted packs. Several are layered, the last one winning. Installed as a mod in MO2, the default is that MO2 with its selected profile."
+msgstr "MO2 配置档案或实例文件夹、Data 文件夹，或已解压的包文件夹。可以叠加多个，最后一个优先。作为模组安装在 MO2 中时，默认就是那个 MO2 及其选中的配置档案。"
+
+#: slsbpatcher/gui.py:282
+#, python-format
+msgid "Animations"
+msgstr "动画"
+
+#: slsbpatcher/gui.py:662
+#, python-format
+msgid "applied when patching"
+msgstr "打补丁时应用"
+
+#: slsbpatcher/gui.py:660
+#, python-format
+msgid "applied: +%(added)d -%(removed)d"
+msgstr "已应用：+%(added)d -%(removed)d"
+
+#: argparse
+#, python-format
+msgid "argument %(argument_name)s: %(message)s"
+msgstr "参数 %(argument_name)s：%(message)s"
+
+#: slsbpatcher/gui.py:1133
+#: slsbpatcher/gui.py:1146
+#, python-format
+msgid "Browse..."
+msgstr "浏览…"
+
+#: slsbpatcher/gui.py:782
+#, python-format
+msgid "By action log"
+msgstr "按动作日志"
+
+#: slsbpatcher/gui.py:1166
+#, python-format
+msgid "Cancel"
+msgstr "取消"
+
+#: slsbpatcher/gui.py:331
+#, python-format
+msgid "Changes"
+msgstr "改动"
+
+#: slsbpatcher/gui.py:469
+#, python-format
+msgid "Close"
+msgstr "关闭"
+
+#: slsbpatcher/cli.py:51
+#, python-format
+msgid "convert this SLAL json (file name or stem), pack or mod name even though a registry covers it, reusing that registry's hash and ids; the new registry replaces it. Repeatable."
+msgstr "转换这个 SLAL json（文件名或主名）、包名或模组名，即使已有注册表覆盖也照做，并复用该注册表的 hash 和 id；新注册表会替换它。可重复使用。"
+
+#: slsbpatcher/gui.py:1107
+#, python-format
+msgid "Convert ticked SLAL packs that have no conversion yet"
+msgstr "转换已勾选但还没有转换结果的 SLAL 包"
+
+#: slsbpatcher/gui.py:639
+#, python-format
+msgid "converted: %(scenes)s"
+msgstr "已转换：%(scenes)s"
+
+#: slsbpatcher/gui.py:1115
+#, python-format
+msgid "Converting"
+msgstr "转换"
+
+#: slsbpatcher/convert.py:204
+#, python-format
+msgid "converting %(mod)s: %(jsons)s"
+msgstr "正在转换 %(mod)s：%(jsons)s"
+
+#: slsbpatcher/gui.py:324
+#, python-format
+msgid "Details"
+msgstr "详情"
+
+#: slsbpatcher/gui.py:968
+#, python-format
+msgid "Done. Run again"
+msgstr "已完成。再次运行"
+
+#: slsbpatcher/gui.py:1122
+#, python-format
+msgid "Earlier conversions to keep the pack hash and ids from (folders of *.slsb.json; installed ones are found by themselves):"
+msgstr "用于保留包 hash 和 id 的先前转换（*.slsb.json 文件夹；已安装的会自动找到）："
+
+#: slsbpatcher/gui.py:418
+#, python-format
+msgid "Error: %(error)s (details in slsbPatcher.log)"
+msgstr "错误：%(error)s（详情见 slsbPatcher.log）"
+
+#: slsbpatcher/gui.py:791
+#, python-format
+msgid "every ticked registry already matches the logs"
+msgstr "所有已勾选的注册表都已与日志一致"
+
+#: slsbpatcher/engine.py:588
+#, python-format
+msgid "Existing conversions: %(n)d registries"
+msgstr "已有转换：%(n)d 个注册表"
+
+#: slsbpatcher/gui.py:443
+#, python-format
+msgid "Exit"
+msgstr "退出"
+
+#: argparse
+#, python-format
+msgid "expected at least one argument"
+msgstr "至少需要一个参数"
+
+#: argparse
+#, python-format
+msgid "expected at most one argument"
+msgstr "最多需要一个参数"
+
+#: argparse
+#, python-format
+msgid "expected one argument"
+msgstr "需要一个参数"
+
+#: slsbpatcher/gui.py:1091
+#, python-format
+msgid "Extra action logs (besides the ones installed in the load order)"
+msgstr "额外动作日志（加载顺序中已安装的之外）"
+
+#: slsbpatcher/cli.py:34
+#, python-format
+msgid "extra SLATE action log file or folder (e.g. Hentairim tag logs); repeatable. Logs installed under SKSE/Plugins/SLATE are always read."
+msgstr "额外的 SLATE 动作日志文件或文件夹（例如 Hentairim 标签日志）；可重复使用。安装在 SKSE/Plugins/SLATE 下的日志总会被读取。"
+
+#: slsbpatcher/gui.py:916
+#, python-format
+msgid "Failed: %(error)s"
+msgstr "失败：%(error)s"
+
+#: slsbpatcher/gui.py:1144
+#, python-format
+msgid "Folder"
+msgstr "文件夹"
+
+#: slsbpatcher/gui.py:121
+#, python-format
+msgid "folder not found"
+msgstr "找不到文件夹"
+
+#: slsbpatcher/gui.py:133
+#, python-format
+msgid "folder of %(n)d pack folders"
+msgstr "包含 %(n)d 个包文件夹的文件夹"
+
+#: slsbpatcher/cli.py:55
+#, python-format
+msgid "folder of *.slsb.json from an earlier conversion, to keep its pack hash and scene ids"
+msgstr "先前转换生成的 *.slsb.json 文件夹，用于保留其包 hash 和场景 id"
+
+#: slsbpatcher/gui.py:295
+#, python-format
+msgid "From"
+msgstr "来源"
+
+#: slsbpatcher/gui.py:607
+#, python-format
+msgid "has a registry (patching is off)"
+msgstr "有注册表（打补丁已关闭）"
+
+#: slsbpatcher/gui.py:617
+#, python-format
+msgid "has a registry: patched with the logs"
+msgstr "有注册表：按日志打补丁"
+
+#: slsbpatcher/gui.py:778
+#, python-format
+msgid "how many scenes got the change"
+msgstr "有多少场景得到该改动"
+
+#: slsbpatcher/cli.py:36
+#, python-format
+msgid "ignore action logs found in the inputs"
+msgstr "忽略输入中发现的动作日志"
+
+#: slsbpatcher/cli.py:38
+#, python-format
+msgid "ignore the action log with this file name (e.g. \"SLATE_ActionLog - OsmelMC.json\"); repeatable"
+msgstr "忽略这个文件名的动作日志（例如“SLATE_ActionLog - OsmelMC.json”）；可重复使用"
+
+#: slsbpatcher/engine.py:572
+#, python-format
+msgid "Inputs: %(inputs)s (%(n)d mods/folders)"
+msgstr "输入：%(inputs)s（%(n)d 个模组/文件夹）"
+
+#: slsbpatcher/install.py:63
+#, python-format
+msgid "Installed in the MO2 instance %(folder)s%(vfs)s: it reads the selected profile (%(profile)s) and writes the mod \"%(mod)s\". After a run, close slsbPatcher; MO2 then lists that mod. Enable it and keep it at the bottom."
+msgstr "已安装在 MO2 实例 %(folder)s%(vfs)s 中：它会读取选中的配置档案（%(profile)s），并写入模组“%(mod)s”。运行结束后请关闭 slsbPatcher；MO2 随后会列出该模组。启用它并保持在最底部。"
+
+#: slsbpatcher/gui.py:1155
+#, python-format
+msgid "Interface"
+msgstr "界面"
+
+#: slsbpatcher/gui.py:964
+#, python-format
+msgid "Keep your conversion mods enabled: the output holds only the files that changed."
+msgstr "保持你的转换模组启用：输出只包含有改动的文件。"
+
+#: slsbpatcher/gui.py:1157
+#, python-format
+msgid "Language"
+msgstr "语言"
+
+#: slsbpatcher/cli.py:63
+#, python-format
+msgid "language of this run, e.g. en or zh_CN (default: the setting, then Windows)"
+msgstr "本次运行的语言，例如 en 或 zh_CN（默认：先取设置，再取 Windows 语言）"
+
+#: slsbpatcher/gui.py:1138
+#, python-format
+msgid "Leave empty for %(what)s"
+msgstr "留空则用 %(what)s"
+
+#: slsbpatcher/cli.py:49
+#, python-format
+msgid "leave this registry (.slr file name or path) alone; repeatable"
+msgstr "让这个注册表（.slr 文件名或路径）保持原样；可重复使用"
+
+#: slsbpatcher/cli.py:46
+#, python-format
+msgid "leave this SLAL json (file name or stem) alone: not converted, and the registry made from it not patched; repeatable"
+msgstr "让这个 SLAL json（文件名或主名）保持原样：不转换，也不对由它生成的注册表打补丁；可重复使用"
+
+#: slsbpatcher/gui.py:621
+#: slsbpatcher/gui.py:615
+#, python-format
+msgid "left alone"
+msgstr "保持原样"
+
+#: slsbpatcher/gui.py:807
+#, python-format
+msgid "Left alone, unticked (%(n)d)"
+msgstr "保持原样、未勾选（%(n)d）"
+
+#: slsbpatcher/gui.py:654
+#, python-format
+msgid "left out"
+msgstr "已排除"
+
+#: slsbpatcher/gui.py:296
+#, python-format
+msgid "Lines"
+msgstr "行数"
+
+#: slsbpatcher/gui.py:1076
+#, python-format
+msgid "Load order"
+msgstr "加载顺序"
+
+#: slsbpatcher/gui.py:731
+#, python-format
+msgid "Load order: %(inputs)s   →   output: %(out)s"
+msgstr "加载顺序：%(inputs)s   →   输出：%(out)s"
+
+#: slsbpatcher/gui.py:464
+#, python-format
+msgid "Log: %(log)s"
+msgstr "日志：%(log)s"
+
+#: slsbpatcher/gui.py:250
+#, python-format
+msgid "Menu"
+msgstr "菜单"
+
+#: slsbpatcher/gui.py:237
+#: slsbpatcher/gui.py:856
+#, python-format
+msgid "Menu > Options to add your load order."
+msgstr "菜单 > 选项：添加你的加载顺序。"
+
+#: slsbpatcher/gui.py:130
+#, python-format
+msgid "MO2 profile, %(mods)s"
+msgstr "MO2 配置档案，%(mods)s"
+
+#: slsbpatcher/gui.py:128
+#, python-format
+msgid "MO2, profile %(profile)s, %(mods)s"
+msgstr "MO2，配置档案 %(profile)s，%(mods)s"
+
+#: slsbpatcher/gui.py:281
+#, python-format
+msgid "Mod"
+msgstr "模组"
+
+#: slsbpatcher/gui.py:1084
+#, python-format
+msgid "Move down"
+msgstr "下移"
+
+#: slsbpatcher/gui.py:1084
+#, python-format
+msgid "Move up"
+msgstr "上移"
+
+#: slsbpatcher/gui.py:281
+#: slsbpatcher/gui.py:295
+#, python-format
+msgid "Name"
+msgstr "名称"
+
+#: slsbpatcher/cli.py:76
+#, python-format
+msgid "Name your load order: an MO2 profile folder, a Data folder or a folder of SLAL packs (see --help)."
+msgstr "请指定加载顺序：MO2 配置档案文件夹、Data 文件夹或 SLAL 包文件夹（见 --help）。"
+
+#: slsbpatcher/gui.py:795
+#, python-format
+msgid "New conversions (%(n)d)"
+msgstr "新增转换（%(n)d）"
+
+#: slsbpatcher/gui.py:789
+#, python-format
+msgid "no action logs ticked"
+msgstr "未勾选任何动作日志"
+
+#: slsbpatcher/gui.py:635
+#, python-format
+msgid "no animations"
+msgstr "没有动画"
+
+#: slsbpatcher/gui.py:661
+#, python-format
+msgid "no changes (already in the registries, or scenes not installed)"
+msgstr "无改动（已在注册表中，或场景未安装）"
+
+#: slsbpatcher/gui.py:787
+#, python-format
+msgid "no changes: already in the registries, or scenes not installed"
+msgstr "无改动：已在注册表中，或场景未安装"
+
+#: slsbpatcher/gui.py:235
+#, python-format
+msgid ""
+"No load order yet.\n"
+"\n"
+"Menu > Options: add your MO2 profile folder (for example MO2\\profiles\\Default), a Data folder, or a folder of extracted SLAL packs."
+msgstr ""
+"还没有加载顺序。\n"
+"\n"
+"菜单 > 选项：添加你的 MO2 配置档案文件夹（例如 MO2\\profiles\\Default）、Data 文件夹，或已解压的 SLAL 包文件夹。"
+
+#: slsbpatcher/gui.py:724
+#, python-format
+msgid "No load order: Menu > Options."
+msgstr "没有加载顺序：菜单 > 选项。"
+
+#: slsbpatcher/gui.py:790
+#, python-format
+msgid "no registries in the load order"
+msgstr "加载顺序中没有注册表"
+
+#: slsbpatcher/gui.py:637
+#, python-format
+msgid "no registry (converting is off)"
+msgstr "无注册表（转换已关闭）"
+
+#: slsbpatcher/gui.py:640
+#, python-format
+msgid "no registry: converted"
+msgstr "无注册表：已转换"
+
+#: slsbpatcher/gui.py:1137
+#, python-format
+msgid "none found; converting needs it"
+msgstr "自动查找（未找到，但转换需要它）"
+
+#: slsbpatcher/gamedata.py:277
+#, python-format
+msgid "not a folder: %(path)s"
+msgstr "不是文件夹：%(path)s"
+
+#: slsbpatcher/gui.py:460
+#, python-format
+msgid "Not installed in an MO2 instance."
+msgstr "未安装在 MO2 实例中。"
+
+#: slsbpatcher/gui.py:941
+#, python-format
+msgid "nothing to do"
+msgstr "无需操作"
+
+#: slsbpatcher/gui.py:792
+#, python-format
+msgid "Nothing to patch"
+msgstr "无需打补丁"
+
+#: slsbpatcher/gui.py:960
+#, python-format
+msgid "Nothing to write."
+msgstr "无需写入。"
+
+#: slsbpatcher/gui.py:1111
+#, python-format
+msgid "Official tags are off by default, as in SLATE NG: P+ reads them per stage, so a scene-wide \"leadin\" makes every stage a lead-in."
+msgstr "官方标签默认关闭，与 SLATE NG 一致：P+ 按阶段读取它们，所以整个场景范围的“leadin”会让每个阶段都成为 lead-in。"
+
+#: slsbpatcher/gui.py:1167
+#, python-format
+msgid "OK"
+msgstr "确定"
+
+#: slsbpatcher/gui.py:132
+#, python-format
+msgid "one mod / Data folder"
+msgstr "单个模组 / Data 文件夹"
+
+#: slsbpatcher/cli.py:44
+#, python-format
+msgid "only convert SLAL packs that have no registry"
+msgstr "只转换没有注册表的 SLAL 包"
+
+#: slsbpatcher/cli.py:43
+#, python-format
+msgid "only patch existing registries"
+msgstr "只对已有注册表打补丁"
+
+#: slsbpatcher/gui.py:504
+#: slsbpatcher/gui.py:515
+#, python-format
+msgid "Open containing folder"
+msgstr "打开所在文件夹"
+
+#: slsbpatcher/gui.py:468
+#, python-format
+msgid "Open GitHub"
+msgstr "打开 GitHub"
+
+#: slsbpatcher/gui.py:440
+#, python-format
+msgid "Open log file"
+msgstr "打开日志文件"
+
+#: slsbpatcher/gui.py:438
+#, python-format
+msgid "Open output folder"
+msgstr "打开输出文件夹"
+
+#: slsbpatcher/gui.py:995
+#, python-format
+msgid "Options"
+msgstr "选项"
+
+#: argparse
+#, python-format
+msgid "options"
+msgstr "选项"
+
+#: slsbpatcher/gui.py:429
+#, python-format
+msgid "Options..."
+msgstr "选项…"
+
+#: slsbpatcher/gui.py:1141
+#, python-format
+msgid "Output"
+msgstr "输出"
+
+#: slsbpatcher/gui.py:1272
+#, python-format
+msgid "Output folder (replaced on every run)"
+msgstr "输出文件夹（每次运行都会替换）"
+
+#: slsbpatcher/cli.py:31
+#, python-format
+msgid "output folder, installed as a mod (default: the mod \"slsbPatcher Output\" when installed in MO2, else \"slsbPatcher Output\" in the current folder)"
+msgstr "输出文件夹，以模组形式安装（默认：安装在 MO2 中时为模组“slsbPatcher Output”，否则为当前文件夹下的“slsbPatcher Output”）"
+
+#: slsbpatcher/gui.py:1118
+#, python-format
+msgid "Pack author"
+msgstr "包作者"
+
+#: slsbpatcher/cli.py:56
+#, python-format
+msgid "pack author written into new conversions (slsb-convert.py -a)"
+msgstr "写入新转换结果的包作者（slsb-convert.py -a）"
+
+#: slsbpatcher/gui.py:813
+#, python-format
+msgid "Partly converted packs (%(n)d)"
+msgstr "部分转换的包（%(n)d）"
+
+#: slsbpatcher/gui.py:1105
+#, python-format
+msgid "Patch existing conversions with the ticked action logs (tags only)"
+msgstr "用已勾选的动作日志给已有转换打补丁（仅标签）"
+
+#: slsbpatcher/cli.py:24
+#, python-format
+msgid "Patch existing SexLab P+ scene registries with SLATE action logs, and convert SLAL packs that have no SLSB conversion yet. Without arguments it opens its window."
+msgstr "用 SLATE 动作日志给已有的 SexLab P+ 场景注册表打补丁，并转换尚无 SLSB 转换结果的 SLAL 包。不带参数时打开窗口。"
+
+#: slsbpatcher/gui.py:755
+#, python-format
+msgid "Patched registries (%(patched)d of %(total)d)"
+msgstr "已打补丁的注册表（%(patched)d / %(total)d）"
+
+#: slsbpatcher/gui.py:612
+#, python-format
+msgid "patched: +%(added)d -%(removed)d in %(scenes)s"
+msgstr "已打补丁：+%(added)d -%(removed)d，涉及 %(scenes)s"
+
+#: slsbpatcher/gui.py:455
+#, python-format
+msgid ""
+"Patches SexLab P+ scene registries with SLATE action logs and converts SLAL packs that\n"
+"have no conversion yet. GPL-3.0.\n"
+"\n"
+"Built on slsb-convert.py (SLP-Community, GPL-3.0), the patch rules of SLATE NG (GPL-3.0)\n"
+"and SexLab Scene Builder (Scrab, I unpause, Miss Corruption; Apache-2.0)."
+msgstr ""
+"用 SLATE 动作日志给 SexLab P+ 场景注册表打补丁，并转换尚无转换结果的 SLAL 包。\n"
+"GPL-3.0。\n"
+"\n"
+"基于 slsb-convert.py (SLP-Community, GPL-3.0)、SLATE NG 的补丁规则 (GPL-3.0)\n"
+"以及 SexLab Scene Builder (Scrab, I unpause, Miss Corruption; Apache-2.0)。"
+
+#: slsbpatcher/gui.py:873
+#, python-format
+msgid "Patching and converting..."
+msgstr "正在打补丁并转换…"
+
+#: slsbpatcher/cli.py:58
+#, python-format
+msgid "path to scene_builder_cli.exe"
+msgstr "scene_builder_cli.exe 的路径"
+
+#: argparse
+#, python-format
+msgid "positional arguments"
+msgstr "位置参数"
+
+#: slsbpatcher/gui.py:940
+#, python-format
+msgid "Preview: %(parts)s. Tick or untick, then press Run."
+msgstr "预览：%(parts)s。勾选或取消勾选，然后按“运行”。"
+
+#: slsbpatcher/gui.py:875
+#, python-format
+msgid "Previewing..."
+msgstr "正在预览…"
+
+#: slsbpatcher/cli.py:61
+#, python-format
+msgid "print only the summary, not the details"
+msgstr "只打印摘要，不打印详情"
+
+#: slsbpatcher/gui.py:827
+#, python-format
+msgid "Problems (%(n)d)"
+msgstr "问题（%(n)d）"
+
+#: slsbpatcher/engine.py:626
+#, python-format
+msgid "Problems:"
+msgstr "问题："
+
+#: slsbpatcher/gui.py:1263
+#, python-format
+msgid "Program"
+msgstr "程序"
+
+#: slsbpatcher/engine.py:341
+#, python-format
+msgid "re-convert %(json)s: %(registry)s is already replaced by %(by)s; the new registry is written beside it"
+msgstr "重新转换 %(json)s：%(registry)s 已被 %(by)s 替换；新注册表会写在它旁边"
+
+#: slsbpatcher/gui.py:498
+#, python-format
+msgid "Re-convert (build its registry again, replacing the old one)"
+msgstr "重新转换（重建其注册表，替换旧的）"
+
+#: slsbpatcher/gui.py:632
+#, python-format
+msgid "re-convert: replaces its registry"
+msgstr "重新转换：替换其注册表"
+
+#: slsbpatcher/gui.py:630
+#, python-format
+msgid "re-converted: %(scenes)s, replaces its registry"
+msgstr "已重新转换：%(scenes)s，替换其注册表"
+
+#: slsbpatcher/gui.py:875
+#, python-format
+msgid "Reading the load order..."
+msgstr "正在读取加载顺序…"
+
+#: slsbpatcher/gui.py:430
+#, python-format
+msgid "Refresh preview"
+msgstr "刷新预览"
+
+#: slsbpatcher/gui.py:1083
+#: slsbpatcher/gui.py:1100
+#: slsbpatcher/gui.py:1130
+#, python-format
+msgid "Remove"
+msgstr "移除"
+
+#: slsbpatcher/gui.py:517
+#, python-format
+msgid "Remove this added log"
+msgstr "移除此添加的日志"
+
+#: slsbpatcher/gui.py:324
+#, python-format
+msgid "Removed"
+msgstr "移除"
+
+#: slsbpatcher/gui.py:318
+#, python-format
+msgid "Report"
+msgstr "报告"
+
+#: slsbpatcher/cli.py:60
+#, python-format
+msgid "report what would change, write nothing"
+msgstr "报告将会发生的改动，不写入任何内容"
+
+#: slsbpatcher/gui.py:1163
+#, python-format
+msgid "Restart slsbPatcher for a new language to take effect."
+msgstr "要让新语言生效，请重启 slsbPatcher。"
+
+#: slsbpatcher/gui.py:814
+#, python-format
+msgid "right-click a pack: Re-convert adds the rest"
+msgstr "右键单击包：重新转换可补上其余部分"
+
+#: slsbpatcher/gui.py:335
+#: slsbpatcher/gui.py:946
+#: slsbpatcher/gui.py:922
+#, python-format
+msgid "Run"
+msgstr "运行"
+
+#: slsbpatcher/gui.py:946
+#, python-format
+msgid "Run (nothing to write)"
+msgstr "运行（无内容可写）"
+
+#: slsbpatcher/scenebuilder.py:56
+#, python-format
+msgid "scene_builder_cli %(command)s failed: %(output)s"
+msgstr "scene_builder_cli %(command)s 失败：%(output)s"
+
+#: slsbpatcher/gui.py:823
+#, python-format
+msgid "Scenes in the logs that are not installed (%(n)d)"
+msgstr "日志中提到但未安装的场景（%(n)d）"
+
+#: slsbpatcher/gui.py:462
+#, python-format
+msgid "Settings: %(settings)s"
+msgstr "设置：%(settings)s"
+
+#: argparse
+#, python-format
+msgid "show program's version number and exit"
+msgstr "显示程序版本号并退出"
+
+#: argparse
+#, python-format
+msgid "show this help message and exit"
+msgstr "显示此帮助信息并退出"
+
+#: slsbpatcher/engine.py:601
+#, python-format
+msgid "SLAL animation jsons:"
+msgstr "SLAL 动画 json："
+
+#: slsbpatcher/gui.py:278
+#: slsbpatcher/gui.py:696
+#, python-format
+msgid "SLAL packs and registries"
+msgstr "SLAL 包与注册表"
+
+#: slsbpatcher/gui.py:1217
+#, python-format
+msgid "SLATE action log"
+msgstr "SLATE 动作日志"
+
+#: slsbpatcher/gui.py:292
+#: slsbpatcher/gui.py:1216
+#: slsbpatcher/gui.py:714
+#, python-format
+msgid "SLATE action logs"
+msgstr "SLATE 动作日志"
+
+#: slsbpatcher/cli.py:57
+#, python-format
+msgid "slsb-convert.py -sf"
+msgstr "slsb-convert.py -sf"
+
+#: slsbpatcher/__main__.py:13
+#, python-format
+msgid ""
+"slsbPatcher-cli.exe is slsbPatcher's command line. For the window, start slsbPatcher.exe.\n"
+"\n"
+"    slsbPatcher-cli \"C:\\Modding\\MO2\\profiles\\Default\"\n"
+"    slsbPatcher-cli --help\n"
+""
+msgstr ""
+"slsbPatcher-cli.exe 是 slsbPatcher 的命令行。要打开窗口，请启动 slsbPatcher.exe。\n"
+"\n"
+"    slsbPatcher-cli \"C:\\Modding\\MO2\\profiles\\Default\"\n"
+"    slsbPatcher-cli --help\n"
+""
+
+#: slsbpatcher/gui.py:1120
+#, python-format
+msgid "Stricter futa (slsb-convert.py -sf: no extra futa flag on strap-on positions)"
+msgstr "更严格的 futa（slsb-convert.py -sf：不在 strap-on 体位上加额外的 futa 标记）"
+
+#: slsbpatcher/gui.py:777
+#, python-format
+msgid "Tags changed"
+msgstr "标签改动"
+
+#: slsbpatcher/gui.py:1234
+#, python-format
+msgid "That folder has no file with a slate.actionlog list."
+msgstr "该文件夹中没有带 slate.actionlog 列表的文件。"
+
+#: slsbpatcher/gui.py:1135
+#, python-format
+msgid "the bundled one: %(path)s"
+msgstr "内置的那份：%(path)s"
+
+#: slsbpatcher/gui.py:1150
+#, python-format
+msgid "The folder is replaced on every run. Installed in MO2, the default is the mod \"%(mod)s\" in MO2's mods folder, which MO2 lists once slsbPatcher closes."
+msgstr "该文件夹每次运行都会被替换。安装在 MO2 中时，默认为 MO2 mods 文件夹下的模组“%(mod)s”，MO2 会在 slsbPatcher 关闭后列出它。"
+
+#: slsbpatcher/gui.py:1053
+#, python-format
+msgid "The language takes effect after slsbPatcher is restarted."
+msgstr "语言将在 slsbPatcher 重启后生效。"
+
+#: slsbpatcher/__main__.py:30
+#, python-format
+msgid "The window is slsbPatcher.exe."
+msgstr "窗口程序是 slsbPatcher.exe。"
+
+#: slsbpatcher/gui.py:962
+#, python-format
+msgid "Then run Pandora."
+msgstr "然后运行 Pandora。"
+
+#: slsbpatcher/gui.py:434
+#, python-format
+msgid "Tick all logs"
+msgstr "勾选所有日志"
+
+#: slsbpatcher/gui.py:432
+#, python-format
+msgid "Tick all packs"
+msgstr "勾选所有包"
+
+#: slsbpatcher/slr.py:143
+#, python-format
+msgid "unexpected data after the last scene"
+msgstr "最后一个场景之后出现意外数据"
+
+#: slsbpatcher/slr.py:61
+#, python-format
+msgid "unexpected end of file"
+msgstr "文件意外结束"
+
+#: slsbpatcher/gui.py:135
+#, python-format
+msgid "unreadable: %(error)s"
+msgstr "无法读取：%(error)s"
+
+#: argparse
+#, python-format
+msgid "unrecognized arguments: %s"
+msgstr "无法识别的参数：%s"
+
+#: slsbpatcher/slr.py:139
+#, python-format
+msgid "unsupported registry version %(version)d"
+msgstr "不支持的注册表版本 %(version)d"
+
+#: slsbpatcher/gui.py:435
+#, python-format
+msgid "Untick all logs"
+msgstr "取消勾选所有日志"
+
+#: slsbpatcher/gui.py:433
+#, python-format
+msgid "Untick all packs"
+msgstr "取消勾选所有包"
+
+#: slsbpatcher/gui.py:616
+#, python-format
+msgid "up to date"
+msgstr "已是最新"
+
+#: argparse
+#, python-format
+msgid "usage: "
+msgstr "用法："
+
+#: slsbpatcher/gui.py:323
+#, python-format
+msgid "What"
+msgstr "变更对象"
+
+#: slsbpatcher/gui.py:283
+#: slsbpatcher/gui.py:297
+#, python-format
+msgid "What happens"
+msgstr "将要发生"
+
+#: slsbpatcher/gui.py:1103
+#, python-format
+msgid "What to do"
+msgstr "要做什么"
+
+#: slsbpatcher/cli.py:41
+#, python-format
+msgid "when patching, also apply lines naming one of P+'s 55 official tags (skipped by default, as SLATE NG does: P+ reads those per stage)"
+msgstr "打补丁时，同时应用指名 P+ 55 个官方标签之一的行（默认跳过，与 SLATE NG 一致：P+ 按阶段读取这些标签）"
+
+#: slsbpatcher/gui.py:1109
+#, python-format
+msgid "When patching, also apply lines naming P+ official tags (anal, leadin, oral ...) to every stage"
+msgstr "打补丁时，同时把指名 P+ 官方标签（anal, leadin, oral ...）的行应用到每个阶段"
+
+#: slsbpatcher/gui.py:803
+#, python-format
+msgid "Will convert (%(n)d)"
+msgstr "将要转换（%(n)d）"
+
+#: slsbpatcher/gui.py:870
+#: slsbpatcher/gui.py:921
+#, python-format
+msgid "Working..."
+msgstr "正在处理…"
+
+#: slsbpatcher/gui.py:957
+#, python-format
+msgid "Wrote %(files)s to %(out)s. Install that folder as a mod with the highest priority."
+msgstr "已把 %(files)s 写入 %(out)s。请把该文件夹作为模组安装，并给予最高优先级。"
+
+#: slsbpatcher/gui.py:954
+#, python-format
+msgid "Wrote %(files)s to the mod \"%(mod)s\". Close slsbPatcher so MO2 picks it up."
+msgstr "已把 %(files)s 写入模组“%(mod)s”。请关闭 slsbPatcher，以便 MO2 识别它。"

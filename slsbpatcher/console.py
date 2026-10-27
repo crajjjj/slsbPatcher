@@ -5,6 +5,10 @@ import os
 import sys
 from pathlib import Path
 
+from . import i18n
+
+_ = i18n._
+
 
 def started_from_explorer() -> bool:
     """True when no shell shares this console, i.e. nobody ran the exe from a prompt.
@@ -28,6 +32,6 @@ def exe_folder() -> Path:
 
 def pause() -> None:
     try:
-        input("\nPress Enter to close this window.")
+        input(_("\nPress Enter to close this window."))
     except EOFError:
         pass

@@ -11,7 +11,9 @@ import sys
 from functools import lru_cache
 from pathlib import Path
 
-from . import gamedata
+from . import gamedata, i18n
+
+_ = i18n._
 
 OUTPUT_MOD = "slsbPatcher Output"
 SETTINGS = "slsbPatcher.settings.json"
@@ -57,7 +59,8 @@ def describe() -> str:
     instance = mo2()
     if not instance:
         return ""
-    vfs = " (started from MO2)" if gamedata.under_mo2_vfs() else ""
-    return (f"Installed in the MO2 instance {instance.folder}{vfs}: it reads the selected profile "
-            f"({instance.selected_profile()}) and writes the mod \"{OUTPUT_MOD}\". After a run, close slsbPatcher; "
-            f"MO2 then lists that mod. Enable it and keep it at the bottom.")
+    vfs = _(" (started from MO2)") if gamedata.under_mo2_vfs() else ""
+    return _("Installed in the MO2 instance %(folder)s%(vfs)s: it reads the selected profile (%(profile)s) and "
+             "writes the mod \"%(mod)s\". After a run, close slsbPatcher; MO2 then lists that mod. Enable it and "
+             "keep it at the bottom.") % {"folder": instance.folder, "vfs": vfs,
+                                          "profile": instance.selected_profile(), "mod": OUTPUT_MOD}
