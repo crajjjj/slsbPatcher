@@ -7,6 +7,10 @@ import subprocess
 import sys
 from pathlib import Path
 
+from . import i18n
+
+_ = i18n._
+
 EXE = "scene_builder_cli.exe" if os.name == "nt" else "scene_builder_cli"
 
 
@@ -39,7 +43,8 @@ def find(explicit: str | None = None) -> Path:
         if candidate.is_file():
             return candidate.resolve()
     raise SceneBuilderError(
-        f"{EXE} not found. Put it in {base / 'bin'}, pass --scene-builder, or set SLSB_CLI.")
+        _("%(exe)s not found. Put it in %(folder)s, pass --scene-builder, or set SLSB_CLI.")
+        % {"exe": EXE, "folder": base / "bin"})
 
 
 def run(exe: Path, *args: str | Path) -> str:
@@ -48,5 +53,6 @@ def run(exe: Path, *args: str | Path) -> str:
                             encoding="utf-8", errors="replace", creationflags=flags)
     output = (result.stdout + result.stderr).strip()
     if result.returncode != 0:
-        raise SceneBuilderError(f"scene_builder_cli {args[0]} failed: {output}")
+        raise SceneBuilderError(_("scene_builder_cli %(command)s failed: %(output)s")
+                                % {"command": args[0], "output": output})
     return output

@@ -42,6 +42,11 @@ def build_cli() -> Path:
     return target
 
 
+def check_translations() -> None:
+    """Refuse to build a release whose translations do not match the source."""
+    subprocess.run([sys.executable, str(ROOT / "scripts" / "i18n.py"), "check"], cwd=ROOT, check=True)
+
+
 def run_tests() -> None:
     subprocess.run([sys.executable, "-m", "unittest", "discover", "-s", "tests"], cwd=ROOT, check=True)
 
@@ -57,6 +62,8 @@ def build_exes() -> list[Path]:
                                      ("slsbPatcher-cli", "--console", "entry.py", ["--exclude-module", "tkinter"])):
         subprocess.run([str(python), "-m", "PyInstaller", "--noconfirm", "--clean", "--onefile", mode, *extra,
                         "--name", name, "--paths", str(ROOT),
+                        # the translations are read at run time, so they travel inside the onefile
+                        "--add-data", f"{ROOT / 'slsbpatcher' / 'locale'}{os.pathsep}slsbpatcher/locale",
                         "--distpath", str(work / "dist"), "--workpath", str(work / "work"), "--specpath", str(work),
                         str(ROOT / "scripts" / entry)], cwd=ROOT, check=True)
         built.append(work / "dist" / (f"{name}.exe" if os.name == "nt" else name))
@@ -79,6 +86,10 @@ def package(exes: list[Path], cli: Path) -> Path:
         zf.write(SCENE_BUILDER / "LICENSE", "licenses/SexLab-Scene-Builder-LICENSE.txt")
         zf.writestr("licenses/SexLab-Scene-Builder-COMMIT.txt",
                     f"scene_builder_cli.exe was built from https://github.com/SLP-Community/SexLab-Scene-Builder at {commit}\n")
+        # A .po beside the exe overrides the built-in translation line by line (locale/ at
+        # the top of the zip is read by slsbpatcher/i18n.py, after the copy inside the exe).
+        for po in sorted((ROOT / "slsbpatcher" / "locale").glob("*/LC_MESSAGES/*.po")):
+            zf.write(po, "locale/" + po.relative_to(ROOT / "slsbpatcher" / "locale").as_posix())
     return archive
 
 
@@ -87,6 +98,7 @@ def main() -> None:
     parser.add_argument("--no-exe", action="store_true", help="skip slsbPatcher.exe and the zip")
     args = parser.parse_args()
     cli = build_cli()
+    check_translations()
     run_tests()
     if args.no_exe:
         print(f"built {cli}")

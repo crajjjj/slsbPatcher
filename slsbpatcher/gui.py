@@ -21,8 +21,13 @@ from dataclasses import dataclass
 from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
 
-from . import __version__, actionlog, engine, gamedata, install, runlog, scenebuilder
+from . import __version__, actionlog, engine, gamedata, i18n, install, runlog, scenebuilder
 
+_ = i18n._
+_n = i18n._n
+_fmt = i18n._fmt
+
+# The tick glyphs stay as they are in every language: they name themselves.
 CHECKED, UNCHECKED, MIXED = "☑", "☐", "▣"
 REPO = "https://github.com/crajjjj/slsbPatcher"
 THEMES = {
@@ -33,10 +38,23 @@ THEMES = {
                   accent="#6f5ce6", accent_dark="#5d4bd0", accent_text="#ffffff", select="#e4e0fb", border="#d8d5e6",
                   good="#2f9a5d", warn="#b7791f"),
 }
-UI = ("Segoe UI", 10)
-UI_BOLD = ("Segoe UI Semibold", 10)
-BIG = ("Segoe UI Semibold", 14)
-MONO = ("Consolas", 10)
+MONO = ("Consolas", 10)  # the report holds scene names, tags and event names: always English data
+
+
+def ui_fonts() -> tuple[tuple, tuple, tuple]:
+    """(text, bold, big) in a family that has the glyphs of the language in use.
+
+    Segoe UI has no Chinese glyphs and Windows falls back one glyph at a time, which looks
+    ragged; Microsoft YaHei UI is Windows' own Chinese UI face.  MONO stays Consolas: the
+    report is data, not prose.
+
+    Bold is a weight, not a family: "Segoe UI Semibold" exists as a family, "Microsoft YaHei
+    UI Semibold" does not, and naming a family Tk cannot find falls back to SimSun at normal
+    weight (measured: tkfont.Font(...).actual("family") == "\u5b8b\u4f53").
+    """
+    if i18n.current().startswith("zh"):
+        return ("Microsoft YaHei UI", 10), ("Microsoft YaHei UI", 10, "bold"), ("Microsoft YaHei UI", 14, "bold")
+    return ("Segoe UI", 10), ("Segoe UI Semibold", 10), ("Segoe UI Semibold", 14)
 
 
 def _load_settings() -> dict:
@@ -55,26 +73,66 @@ def _save_settings(settings: dict) -> None:
         pass
 
 
-def _count(count: int, one: str, many: str = "") -> str:
-    return f"{count} {one if count == 1 else (many or one + 's')}"
+# A count and its noun are one msgid: "3 registries" has no Chinese equivalent built from
+# "3" and "registries", so each phrase below is translated whole, number included.
+def _scenes(count: int) -> str:
+    return _fmt(_n("%(n)d scene", "%(n)d scenes", count), n=count)
+
+
+def _registries(count: int) -> str:
+    return _fmt(_n("%(n)d registry", "%(n)d registries", count), n=count)
+
+
+def _packs(count: int) -> str:
+    return _fmt(_n("%(n)d pack", "%(n)d packs", count), n=count)
+
+
+def _files(count: int) -> str:
+    return _fmt(_n("%(n)d file", "%(n)d files", count), n=count)
+
+
+def _problems(count: int) -> str:
+    return _fmt(_n("%(n)d problem", "%(n)d problems", count), n=count)
+
+
+def _joined(parts: list[str]) -> str:
+    """Phrases that are already translated, joined the way this language writes a list."""
+    return _(", ").join(parts)
+
+
+def _sentences(parts: list[str]) -> str:
+    """Whole sentences, already translated, set one after another.
+
+    The space between them is not a msgid on purpose: gettext reads an empty msgstr as "not
+    translated" and falls back to the msgid, so " " could never be translated away.
+    """
+    return " ".join(parts)
+
+
+def _line_count(actionlog_file) -> str:
+    """One row of the log column: how many lines, and how many of them add or remove a tag."""
+    return _fmt("%(lines)d (%(adds)d+ %(removes)d-)", lines=len(actionlog_file.lines),
+                adds=actionlog_file.adds, removes=actionlog_file.removes)
 
 
 def _describe_input(path: Path) -> str:
     try:
         if not path.is_dir():
-            return "folder not found"
+            return _("folder not found")
         instance = gamedata.Mo2Instance.read(path)
         layers = gamedata.mo2_layers(path)
         if layers is not None:
             mods = sum(not layer.name.startswith("(") for layer in layers)
+            enabled = _fmt(_n("%(n)d enabled mod", "%(n)d enabled mods", mods), n=mods)
             if instance:
-                return f"MO2, profile {instance.selected_profile()}, {mods} enabled mods"
-            return f"MO2 profile, {mods} enabled mods"
+                return _fmt("MO2, profile %(profile)s, %(mods)s",
+                            profile=instance.selected_profile(), mods=enabled)
+            return _fmt("MO2 profile, %(mods)s", mods=enabled)
         if gamedata.looks_like_data(path):
-            return "one mod / Data folder"
-        return f"folder of {len(gamedata.layers_for_input(path))} pack folders"
+            return _("one mod / Data folder")
+        return _fmt("folder of %(n)d pack folders", n=len(gamedata.layers_for_input(path)))
     except Exception as error:  # a bad folder must not break the window
-        return f"unreadable: {error}"
+        return _fmt("unreadable: %(error)s", error=error)
 
 
 def _open_folder(path: Path) -> None:
@@ -145,6 +203,7 @@ class App:
         self.stricter_futa = bool(s.get("stricter_futa", False))
         self.author = s.get("author", "")
         self.scene_builder = s.get("scene_builder", "")
+        self.language = i18n.current()  # as loaded by launch(); Options may change it for next time
         self.search_var = tk.StringVar()
         self.search_var.trace_add("write", lambda *_: self._fill_lists())
         self.status_var = tk.StringVar()
@@ -173,28 +232,29 @@ class App:
         if self.inputs:
             root.after(150, lambda: self._start("preview"))
         else:
-            self._set_report("No load order yet.\n\nMenu > Options: add your MO2 profile folder (for example "
-                             "MO2\\profiles\\Default), a Data folder, or a folder of extracted SLAL packs.")
-            self.status_var.set("Menu > Options to add your load order.")
+            self._set_report(_("No load order yet.\n\nMenu > Options: add your MO2 profile folder (for example "
+                               "MO2\\profiles\\Default), a Data folder, or a folder of extracted SLAL packs."))
+            self.status_var.set(_("Menu > Options to add your load order."))
 
     # ------------------------------------------------------------------ layout
 
     def _build(self) -> None:
         root = self.root
+        self.ui, self.ui_bold, self.big = ui_fonts()
         root.columnconfigure(0, weight=1)
         root.rowconfigure(1, weight=1)
 
         top = self.topbar = tk.Frame(root)
         top.grid(row=0, column=0, sticky="ew", padx=12, pady=(8, 4))
         top.columnconfigure(2, weight=1)
-        self.menu_button = tk.Button(top, text="Menu", command=self._show_menu)
+        self.menu_button = tk.Button(top, text=_("Menu"), command=self._show_menu)
         self.menu_button.grid(row=0, column=0, padx=(0, 4))
-        self.about_button = tk.Button(top, text="About", command=self._about)
+        self.about_button = tk.Button(top, text=_("About"), command=self._about)
         self.about_button.grid(row=0, column=1)
         search = ttk.Frame(top)
         search.grid(row=0, column=2)
-        ttk.Entry(search, textvariable=self.search_var, width=44, font=UI).pack(side="left", ipady=3)
-        ttk.Label(search, text=" ⌕", font=("Segoe UI", 12)).pack(side="left")
+        ttk.Entry(search, textvariable=self.search_var, width=44, font=self.ui).pack(side="left", ipady=3)
+        ttk.Label(search, text=" ⌕", font=(self.ui[0], 12)).pack(side="left")
         self.theme_button = tk.Button(top, text="☾" if self.theme == "dark" else "☀", command=self._toggle_theme)
         self.theme_button.grid(row=0, column=3)
 
@@ -215,11 +275,12 @@ class App:
         packs = ttk.Frame(vpanes)
         packs.columnconfigure(0, weight=1)
         packs.rowconfigure(1, weight=1)
-        self.packs_label = ttk.Label(packs, text="SLAL packs and registries", style="Title.TLabel")
+        self.packs_label = ttk.Label(packs, text=_("SLAL packs and registries"), style="Title.TLabel")
         self.packs_label.grid(row=0, column=0, sticky="w", pady=(0, 2))
         self.packs_tree = self._tree(packs, (("tick", "", 34, False, "center"), ("num", "", 36, False, "e"),
-                                             ("name", "Name", 210, True, "w"), ("mod", "Mod", 210, True, "w"),
-                                             ("count", "Animations", 86, False, "e"), ("status", "What happens", 330, True, "w")))
+                                             ("name", _("Name"), 210, True, "w"), ("mod", _("Mod"), 210, True, "w"),
+                                             ("count", _("Animations"), 86, False, "e"),
+                                             ("status", _("What happens"), 360, True, "w")))
         self.packs_tree.bind("<Button-1>", lambda e: self._on_click(e, self.packs_tree, self._pack_on, self._set_pack))
         self.packs_tree.bind("<Button-3>", self._pack_menu)
         self.packs_tree.bind("<space>", lambda e: self._toggle_selected(self.packs_tree, self._pack_on, self._set_pack))
@@ -228,11 +289,12 @@ class App:
         logs = ttk.Frame(vpanes)
         logs.columnconfigure(0, weight=1)
         logs.rowconfigure(1, weight=1)
-        self.logs_label = ttk.Label(logs, text="SLATE action logs", style="Title.TLabel")
+        self.logs_label = ttk.Label(logs, text=_("SLATE action logs"), style="Title.TLabel")
         self.logs_label.grid(row=0, column=0, sticky="w", pady=(6, 2))
         self.logs_tree = self._tree(logs, (("tick", "", 34, False, "center"), ("num", "", 36, False, "e"),
-                                           ("name", "Name", 230, True, "w"), ("source", "From", 210, True, "w"),
-                                           ("lines", "Lines", 130, False, "e"), ("status", "What happens", 300, True, "w")))
+                                           ("name", _("Name"), 230, True, "w"), ("source", _("From"), 210, True, "w"),
+                                           ("lines", _("Lines"), 130, False, "e"),
+                                           ("status", _("What happens"), 300, True, "w")))
         self.logs_tree.bind("<Button-1>", lambda e: self._on_click(e, self.logs_tree, self._log_on, self._set_log))
         self.logs_tree.bind("<Button-3>", self._log_menu)
         self.logs_tree.bind("<space>", lambda e: self._toggle_selected(self.logs_tree, self._log_on, self._set_log))
@@ -253,24 +315,24 @@ class App:
         hbar = ttk.Scrollbar(report, orient="horizontal", command=self.report_text.xview)
         hbar.grid(row=1, column=0, sticky="ew")
         self.report_text.configure(yscrollcommand=vbar.set, xscrollcommand=hbar.set)
-        self.tabs.add(report, text="Report")
+        self.tabs.add(report, text=_("Report"))
         changes = ttk.Frame(self.tabs, style="Panel.TFrame")
         changes.columnconfigure(0, weight=1)
         changes.rowconfigure(0, weight=1)
         self.changes_tree = ttk.Treeview(changes, columns=("added", "removed", "detail"))
-        for column, text, width, anchor in (("#0", "What", 360, "w"), ("added", "Added", 64, "e"),
-                                            ("removed", "Removed", 70, "e"), ("detail", "Details", 220, "w")):
+        for column, text, width, anchor in (("#0", _("What"), 360, "w"), ("added", _("Added"), 64, "e"),
+                                            ("removed", _("Removed"), 70, "e"), ("detail", _("Details"), 220, "w")):
             self.changes_tree.heading(column, text=text, anchor=anchor)
             self.changes_tree.column(column, width=width, anchor=anchor, stretch=column in ("#0", "detail"))
         self.changes_tree.grid(row=0, column=0, sticky="nsew")
         bar = ttk.Scrollbar(changes, orient="vertical", command=self.changes_tree.yview)
         bar.grid(row=0, column=1, sticky="ns")
         self.changes_tree.configure(yscrollcommand=bar.set)
-        self.tabs.add(changes, text="Changes")
+        self.tabs.add(changes, text=_("Changes"))
 
         self.status = ttk.Label(root, textvariable=self.status_var, style="Muted.TLabel")
         self.status.grid(row=2, column=0, sticky="w", padx=14, pady=(2, 4))
-        self.run_button = tk.Button(root, text="Run", command=lambda: self._start("run"), font=BIG, relief="flat",
+        self.run_button = tk.Button(root, text=_("Run"), command=lambda: self._start("run"), font=self.big, relief="flat",
                                     bd=0, cursor="hand2", pady=14)
         self.run_button.grid(row=3, column=0, sticky="ew", padx=12, pady=(0, 12))
 
@@ -287,30 +349,31 @@ class App:
 
     def _apply_theme(self) -> None:
         c = self.colors = THEMES[self.theme]
+        self.ui, self.ui_bold, self.big = ui_fonts()
         style = ttk.Style(self.root)
         style.theme_use("clam")
-        style.configure(".", background=c["bg"], foreground=c["text"], font=UI, bordercolor=c["border"],
+        style.configure(".", background=c["bg"], foreground=c["text"], font=self.ui, bordercolor=c["border"],
                         lightcolor=c["bg"], darkcolor=c["bg"], troughcolor=c["bg"], focuscolor=c["accent"])
         style.configure("TFrame", background=c["bg"])
         style.configure("Panel.TFrame", background=c["panel"])
         style.configure("TLabel", background=c["bg"], foreground=c["text"])
         style.configure("Muted.TLabel", foreground=c["muted"])
-        style.configure("Title.TLabel", font=UI_BOLD)
+        style.configure("Title.TLabel", font=self.ui_bold)
         style.configure("TPanedwindow", background=c["bg"])
         style.configure("Sash", sashthickness=6, gripcount=0)
         style.configure("Treeview", background=c["panel"], fieldbackground=c["panel"], foreground=c["text"],
                         rowheight=26, borderwidth=0, relief="flat")
         style.layout("Treeview", [("Treeview.treearea", {"sticky": "nswe"})])
         style.map("Treeview", background=[("selected", c["select"])], foreground=[("selected", c["text"])])
-        style.configure("Treeview.Heading", background=c["bg"], foreground=c["muted"], relief="flat", font=UI_BOLD,
-                        padding=(6, 6), borderwidth=0)
+        style.configure("Treeview.Heading", background=c["bg"], foreground=c["muted"], relief="flat",
+                        font=self.ui_bold, padding=(6, 6), borderwidth=0)
         style.map("Treeview.Heading", background=[("active", c["bg"]), ("pressed", c["bg"])])
         style.configure("TScrollbar", background=c["panel"], troughcolor=c["bg"], bordercolor=c["bg"],
                         arrowcolor=c["muted"], relief="flat", gripcount=0)
         style.map("TScrollbar", background=[("active", c["select"]), ("pressed", c["select"])])
         style.configure("TNotebook", background=c["bg"], borderwidth=0, tabmargins=(0, 0, 0, 0))
-        style.configure("TNotebook.Tab", background=c["bg"], foreground=c["muted"], padding=(16, 7), font=UI_BOLD,
-                        borderwidth=0)
+        style.configure("TNotebook.Tab", background=c["bg"], foreground=c["muted"], padding=(16, 7),
+                        font=self.ui_bold, borderwidth=0)
         style.map("TNotebook.Tab", background=[("selected", c["panel"])], foreground=[("selected", c["text"])],
                   expand=[("selected", (0, 0, 0, 0))])
         style.configure("TEntry", fieldbackground=c["field"], foreground=c["text"], insertcolor=c["text"],
@@ -323,15 +386,15 @@ class App:
         style.map("TCheckbutton", background=[("active", c["bg"])],
                   indicatorbackground=[("selected", c["field"]), ("pressed", c["field"])])
         style.configure("TLabelframe", background=c["bg"], bordercolor=c["border"], relief="solid")
-        style.configure("TLabelframe.Label", background=c["bg"], foreground=c["muted"], font=UI_BOLD)
+        style.configure("TLabelframe.Label", background=c["bg"], foreground=c["muted"], font=self.ui_bold)
 
         self.root.configure(bg=c["bg"])
         self.topbar.configure(bg=c["bg"])
         for button in (self.menu_button, self.about_button, self.theme_button):
             button.configure(bg=c["bg"], fg=c["text"], activebackground=c["select"], activeforeground=c["text"],
-                             relief="flat", bd=0, font=UI_BOLD, padx=12, pady=6, cursor="hand2",
+                             relief="flat", bd=0, font=self.ui_bold, padx=12, pady=6, cursor="hand2",
                              highlightthickness=0)
-        self.theme_button.configure(text="☾" if self.theme == "dark" else "☀", font=("Segoe UI", 12))
+        self.theme_button.configure(text="☾" if self.theme == "dark" else "☀", font=(self.ui[0], 12))
         self.report_text.configure(bg=c["panel"], fg=c["text"], insertbackground=c["text"],
                                    selectbackground=c["select"], selectforeground=c["text"])
         self.run_button.configure(bg=c["accent"], fg=c["accent_text"], activebackground=c["accent_dark"],
@@ -352,31 +415,32 @@ class App:
     def _callback_failed(self, kind, value, tb) -> None:
         """A Tk callback raised. The windowed exe has no console, so log it and say so on screen."""
         logging.getLogger("slsbpatcher").error("".join(traceback.format_exception(kind, value, tb)))
-        self.status_var.set(f"Error: {value} (details in slsbPatcher.log)")
+        self.status_var.set(_fmt("Error: %(error)s (details in slsbPatcher.log)", error=value))
 
     # ------------------------------------------------------------------ menus and dialogs
 
     def _menu(self) -> tk.Menu:
         c = self.colors
         return tk.Menu(self.root, tearoff=0, bg=c["panel"], fg=c["text"], activebackground=c["select"],
-                       activeforeground=c["text"], relief="flat", bd=0, font=UI)
+                       activeforeground=c["text"], relief="flat", bd=0, font=self.ui)
 
     def _show_menu(self) -> None:
         menu = self._menu()
-        menu.add_command(label="Options...", command=self._options)
-        menu.add_command(label="Refresh preview", command=lambda: self._start("preview", rescan=True))
+        menu.add_command(label=_("Options..."), command=self._options)
+        menu.add_command(label=_("Refresh preview"), command=lambda: self._start("preview", rescan=True))
         menu.add_separator()
-        menu.add_command(label="Tick all packs", command=lambda: self._set_all(self.packs_tree, self._set_pack, True))
-        menu.add_command(label="Untick all packs", command=lambda: self._set_all(self.packs_tree, self._set_pack, False))
-        menu.add_command(label="Tick all logs", command=lambda: self._set_all(self.logs_tree, self._set_log, True))
-        menu.add_command(label="Untick all logs", command=lambda: self._set_all(self.logs_tree, self._set_log, False))
+        menu.add_command(label=_("Tick all packs"), command=lambda: self._set_all(self.packs_tree, self._set_pack, True))
+        menu.add_command(label=_("Untick all packs"), command=lambda: self._set_all(self.packs_tree, self._set_pack, False))
+        menu.add_command(label=_("Tick all logs"), command=lambda: self._set_all(self.logs_tree, self._set_log, True))
+        menu.add_command(label=_("Untick all logs"), command=lambda: self._set_all(self.logs_tree, self._set_log, False))
         menu.add_separator()
         out = Path(self.out)
-        menu.add_command(label="Open output folder", command=lambda: _open_folder(out), state="normal" if out.exists() else "disabled")
-        menu.add_command(label="Open log file", command=lambda: _open_folder(runlog.path()),
+        menu.add_command(label=_("Open output folder"), command=lambda: _open_folder(out),
+                         state="normal" if out.exists() else "disabled")
+        menu.add_command(label=_("Open log file"), command=lambda: _open_folder(runlog.path()),
                          state="normal" if runlog.path().exists() else "disabled")
         menu.add_separator()
-        menu.add_command(label="Exit", command=self._close)
+        menu.add_command(label=_("Exit"), command=self._close)
         x = self.menu_button.winfo_rootx()
         y = self.menu_button.winfo_rooty() + self.menu_button.winfo_height()
         menu.tk_popup(x, y)
@@ -384,21 +448,25 @@ class App:
     def _about(self) -> None:
         c = self.colors
         win = tk.Toplevel(self.root, bg=c["bg"])
-        win.title("About slsbPatcher")
+        win.title(_("About slsbPatcher"))
         win.transient(self.root)
         win.resizable(False, False)
         text = (f"slsbPatcher {__version__}\n\n"
-                "Patches SexLab P+ scene registries with SLATE action logs and converts SLAL packs that\n"
-                "have no conversion yet. GPL-3.0.\n\n"
-                "Built on slsb-convert.py (SLP-Community, GPL-3.0), the patch rules of SLATE NG (GPL-3.0)\n"
-                "and SexLab Scene Builder (Scrab, I unpause, Miss Corruption; Apache-2.0).\n\n"
-                f"{install.describe() or 'Not installed in an MO2 instance.'}\n\n"
-                f"Settings: {install.settings_path()}\nLog: {runlog.path()}")
+                + _("Patches SexLab P+ scene registries with SLATE action logs and converts SLAL packs that\n"
+                    "have no conversion yet. GPL-3.0.\n\n"
+                    "Built on slsb-convert.py (SLP-Community, GPL-3.0), the patch rules of SLATE NG (GPL-3.0)\n"
+                    "and SexLab Scene Builder (Scrab, I unpause, Miss Corruption; Apache-2.0).")
+                + "\n\n"
+                + (install.describe() or _("Not installed in an MO2 instance."))
+                + "\n\n"
+                + _fmt("Settings: %(settings)s", settings=install.settings_path())
+                + "\n"
+                + _fmt("Log: %(log)s", log=runlog.path()))
         ttk.Label(win, text=text, justify="left", wraplength=640).pack(padx=20, pady=(16, 10))
         buttons = ttk.Frame(win)
         buttons.pack(pady=(0, 14))
-        ttk.Button(buttons, text="Open GitHub", command=lambda: webbrowser.open(REPO)).pack(side="left", padx=4)
-        ttk.Button(buttons, text="Close", command=win.destroy).pack(side="left", padx=4)
+        ttk.Button(buttons, text=_("Open GitHub"), command=lambda: webbrowser.open(REPO)).pack(side="left", padx=4)
+        ttk.Button(buttons, text=_("Close"), command=win.destroy).pack(side="left", padx=4)
         win.wait_visibility()  # a grab on a window that is not mapped yet fails
         win.grab_set()
 
@@ -427,13 +495,13 @@ class App:
         if row.json_index is not None:
             item = self.scanned.slal[row.json_index]
             var = tk.BooleanVar(value=item.winner.path.name.lower() in self.reconvert)
-            menu.add_checkbutton(label="Re-convert (build its registry again, replacing the old one)", variable=var,
+            menu.add_checkbutton(label=_("Re-convert (build its registry again, replacing the old one)"), variable=var,
                                  state="normal" if item.covered else "disabled",
                                  command=lambda: self._set_reconvert(item.winner.path.name.lower(), var.get()))
             path = item.winner.path
         else:
             path = self.scanned.registries[row.reg_index].winner.path
-        menu.add_command(label="Open containing folder", command=lambda: _open_folder(path))
+        menu.add_command(label=_("Open containing folder"), command=lambda: _open_folder(path))
         menu.tk_popup(event.x_root, event.y_root)
 
     def _log_menu(self, event) -> None:
@@ -444,9 +512,9 @@ class App:
         tree.selection_set(iid)
         row = self.log_rows[int(iid.split(":")[0])]
         menu = self._menu()
-        menu.add_command(label="Open containing folder", command=lambda: _open_folder(row.path))
+        menu.add_command(label=_("Open containing folder"), command=lambda: _open_folder(row.path))
         if not row.installed:
-            menu.add_command(label="Remove this added log", command=lambda: self._remove_log(row))
+            menu.add_command(label=_("Remove this added log"), command=lambda: self._remove_log(row))
         menu.tk_popup(event.x_root, event.y_root)
 
     def _remove_log(self, row: LogRow) -> None:
@@ -523,31 +591,34 @@ class App:
         for index, registry in enumerate(found.registries):
             if index not in sources:  # a registry no installed SLAL json is the source of
                 self.rows.append(PackRow("reg:" + registry.winner.rel.lower(), registry.winner.path.name,
-                                         registry.winner.layer.name, f"{len(registry.parsed.scenes)} scenes", reg_index=index))
+                                         registry.winner.layer.name, _scenes(len(registry.parsed.scenes)),
+                                         reg_index=index))
         self.rows.sort(key=lambda r: (r.mod.lower(), r.name.lower()))
         actionlog.build_logs(found.installed_logs + found.extra_logs, self.official)  # fills the line counts
         self.log_rows = []
         for f in found.installed_logs:
-            self.log_rows.append(LogRow(f.path.name.lower(), f.path.name, f.layer, f"{len(f.lines)} ({f.adds}+ {f.removes}-)", True, f.path))
+            self.log_rows.append(LogRow(f.path.name.lower(), f.path.name, f.layer, _line_count(f), True, f.path))
         for f in found.extra_logs:
-            self.log_rows.append(LogRow(f.path.name.lower(), f.path.name, str(f.path.parent), f"{len(f.lines)} ({f.adds}+ {f.removes}-)", False, f.path))
+            self.log_rows.append(LogRow(f.path.name.lower(), f.path.name, str(f.path.parent), _line_count(f), False, f.path))
 
     def _registry_status(self, rel: str) -> tuple[str, str]:
+        """How one registry will fare, as a whole sentence, and its tag."""
         if not self.patch:
-            return "has a registry (patching is off)", "on"
+            return _("has a registry (patching is off)"), "on"
         o = self.outcome
         if o is not None:
             patched = next((p for p in o.patched if p.rel == rel), None)
             if patched:
-                return f"patched: +{patched.added} -{patched.removed} in {_count(len(patched.scenes), 'scene')}", "on"
+                return _fmt("patched: +%(added)d -%(removed)d in %(scenes)s", added=patched.added,
+                            removed=patched.removed, scenes=_scenes(len(patched.scenes))), "on"
             if rel in o.left_alone_registries:
-                return "left alone", "off"
-            return "up to date", "on"
-        return "has a registry: patched with the logs", "on"
+                return _("left alone"), "off"
+            return _("up to date"), "on"
+        return _("has a registry: patched with the logs"), "on"
 
     def _pack_status(self, row: PackRow) -> tuple[str, str]:
         if not self._pack_on(row.key):
-            return "left alone", "off"
+            return _("left alone"), "off"
         found, o = self.scanned, self.outcome
         if row.json_index is None:
             return self._registry_status(found.registries[row.reg_index].winner.rel)
@@ -556,34 +627,40 @@ class App:
         produced = next((p for p in o.produced if p.json_name.lower() == name), None) if o else None
         if item.covered and name in self.reconvert and self.convert:
             if produced:
-                return f"re-converted: {_count(len(produced.scenes), 'scene')}, replaces its registry", "reconvert"
-            return "re-convert: replaces its registry", "reconvert"
+                return _fmt("re-converted: %(scenes)s, replaces its registry",
+                            scenes=_scenes(len(produced.scenes))), "reconvert"
+            return _("re-convert: replaces its registry"), "reconvert"
         if not item.covered:
             if not item.animations:
-                return "no animations", "off"
+                return _("no animations"), "off"
             if not self.convert:
-                return "no registry (converting is off)", "warn"
+                return _("no registry (converting is off)"), "warn"
             if produced:
-                return f"converted: {_count(len(produced.scenes), 'scene')}", "convert"
-            return "no registry: converted", "convert"
+                return _fmt("converted: %(scenes)s", scenes=_scenes(len(produced.scenes))), "convert"
+            return _("no registry: converted"), "convert"
         text, tag = self._registry_status(found.registries[item.main_registry()].winner.rel)
         missing = len(item.animations) - item.covered
         if missing:
-            text += f"; {missing} animations in no registry"
+            # The registry's own sentence arrives already translated, so the missing count
+            # cannot be glued on as a second half: one msgid holds the whole line instead,
+            # with the status passed in as a placeholder.
+            text = _fmt(_n("%(status)s; %(n)d animation in no registry",
+                           "%(status)s; %(n)d animations in no registry", missing),
+                        status=text, n=missing)
             tag = "warn" if tag == "on" else tag
         return text, tag
 
     def _log_status(self, row: LogRow) -> tuple[str, str]:
         if row.key in self.skip_logs:
-            return "left out", "off"
+            return _("left out"), "off"
         o = self.outcome
         if o is not None:
             changes = [c for p in o.patched for c in p.changes if c.log == row.name]
             if changes:
                 added = sum(c.added for c in changes)
-                return f"applied: +{added} -{len(changes) - added}", "on"
-            return "no changes (already in the registries, or scenes not installed)", "on"
-        return "applied when patching", "on"
+                return _fmt("applied: +%(added)d -%(removed)d", added=added, removed=len(changes) - added), "on"
+            return _("no changes (already in the registries, or scenes not installed)"), "on"
+        return _("applied when patching"), "on"
 
     @staticmethod
     def _clear(tree) -> tuple:
@@ -616,7 +693,9 @@ class App:
         self._restore(tree, state)
         self._heading_tick(tree, self._pack_on)
         on_count = sum(self._pack_on(r.key) for r in self.rows)
-        self.packs_label.configure(text=f"SLAL packs and registries  ({on_count} of {len(self.rows)} ticked)")
+        self.packs_label.configure(text=_fmt("%(what)s  (%(on)d of %(total)d ticked)",
+                                             what=_("SLAL packs and registries"),
+                                             on=on_count, total=len(self.rows)))
 
         tree = self.logs_tree
         state = self._clear(tree)
@@ -632,7 +711,9 @@ class App:
         self._restore(tree, state)
         self._heading_tick(tree, self._log_on)
         on_count = sum(r.key not in self.skip_logs for r in self.log_rows)
-        self.logs_label.configure(text=f"SLATE action logs  ({on_count} of {len(self.log_rows)} ticked)")
+        self.logs_label.configure(text=_fmt("%(what)s  (%(on)d of %(total)d ticked)",
+                                            what=_("SLATE action logs"),
+                                            on=on_count, total=len(self.log_rows)))
 
     def _heading_tick(self, tree, is_on) -> None:
         keys = tree.get_children()
@@ -641,13 +722,15 @@ class App:
 
     def _refresh_caption(self) -> None:
         if not self.inputs:
-            self.caption.configure(text="No load order: Menu > Options.")
+            self.caption.configure(text=_("No load order: Menu > Options."))
             return
         parts = []
         for path in self.inputs:
             instance = gamedata.Mo2Instance.read(path)
-            parts.append(f"{path} (MO2, profile {instance.selected_profile()})" if instance else str(path))
-        self.caption.configure(text=f"Load order: {'; '.join(parts)}   →   output: {self.out}")
+            parts.append(_fmt("%(path)s (MO2, profile %(profile)s)", path=path,
+                              profile=instance.selected_profile()) if instance else str(path))
+        self.caption.configure(text=_fmt("Load order: %(inputs)s   →   output: %(out)s",
+                                         inputs=_joined(parts), out=self.out))
 
     # ------------------------------------------------------------------ report
 
@@ -669,14 +752,19 @@ class App:
         if outcome.patched:
             changes = [c for p in outcome.patched for c in p.changes]
             added = sum(c.added for c in changes)
-            top = tree.insert("", "end", open=True, text=f"Patched registries ({len(outcome.patched)} of {outcome.registries})",
-                              values=(added, len(changes) - added, _count(sum(len(p.scenes) for p in outcome.patched), "scene")))
+            top = tree.insert("", "end", open=True,
+                              text=_fmt("Patched registries (%(patched)d of %(total)d)",
+                                        patched=len(outcome.patched), total=outcome.registries),
+                              values=(added, len(changes) - added,
+                                      _scenes(sum(len(p.scenes) for p in outcome.patched))))
             for mod, items in engine.by_mod(outcome.patched):
                 mod_node = tree.insert(top, "end", open=len(outcome.patched) <= 12, text=mod,
                                        values=(sum(p.added for p in items), sum(p.removed for p in items),
-                                               _count(len(items), "registry", "registries")))
+                                               _registries(len(items))))
                 for p in items:
-                    detail = _count(len(p.scenes), "scene") + (", and its project" if p.project_rel else "")
+                    detail = (_fmt(_n("%(n)d scene, and its project", "%(n)d scenes, and its project",
+                                      len(p.scenes)), n=len(p.scenes)) if p.project_rel
+                              else _scenes(len(p.scenes)))
                     reg = tree.insert(mod_node, "end", text=p.rel.rsplit("/", 1)[-1], values=(p.added, p.removed, detail))
                     by_scene: dict[str, list] = {}
                     for change in p.changes:
@@ -687,49 +775,57 @@ class App:
                         for change in items_:
                             tree.insert(scene_node, "end", text=f"{'+' if change.added else '-'} {change.tag}",
                                         values=("", "", change.log))
-            tags = tree.insert("", "end", text="Tags changed", values=("", "", "how many scenes got the change"))
+            tags = tree.insert("", "end", text=_("Tags changed"),
+                               values=("", "", _("how many scenes got the change")))
             for tag, count in engine.tag_counts(outcome.patched):
                 tree.insert(tags, "end", text=tag, values=(count if tag.startswith("+") else "",
                                                            count if tag.startswith("-") else "", ""))
-            logs = tree.insert("", "end", text="By action log")
+            logs = tree.insert("", "end", text=_("By action log"))
             for f in outcome.logs:
                 items_ = [c for c in changes if c.log == f.path.name]
                 tree.insert(logs, "end", text=f.path.name, values=(
                     sum(c.added for c in items_), sum(not c.added for c in items_),
-                    "" if items_ else "no changes: already in the registries, or scenes not installed"))
+                    "" if items_ else _("no changes: already in the registries, or scenes not installed")))
         elif outcome.options.patch:
-            reason = ("no action logs ticked" if not outcome.logs else
-                      "no registries in the load order" if not outcome.registries else
-                      "every ticked registry already matches the logs")
-            tree.insert("", "end", text="Nothing to patch", values=("", "", reason))
+            reason = (_("no action logs ticked") if not outcome.logs else
+                      _("no registries in the load order") if not outcome.registries else
+                      _("every ticked registry already matches the logs"))
+            tree.insert("", "end", text=_("Nothing to patch"), values=("", "", reason))
         if outcome.produced:
-            node = tree.insert("", "end", open=True, text=f"New conversions ({len(outcome.produced)})",
-                               values=("", "", _count(sum(len(p.scenes) for p in outcome.produced), "scene")))
+            node = tree.insert("", "end", open=True,
+                               text=_fmt("New conversions (%(n)d)", n=len(outcome.produced)),
+                               values=("", "", _scenes(sum(len(p.scenes) for p in outcome.produced))))
             for p in outcome.produced:
                 tree.insert(node, "end", text=f"{p.json_name}  ->  {p.slr_rel.rsplit('/', 1)[-1]}",
-                            values=("", "", f"{_count(len(p.scenes), 'scene')}, {p.module}"))
+                            values=("", "", _fmt("%(scenes)s, %(module)s",
+                                                 scenes=_scenes(len(p.scenes)), module=p.module)))
         if outcome.would_convert:
-            node = tree.insert("", "end", open=True, text=f"Will convert ({len(outcome.would_convert)})")
+            node = tree.insert("", "end", open=True,
+                               text=_fmt("Will convert (%(n)d)", n=len(outcome.would_convert)))
             for name, mod in outcome.would_convert:
                 tree.insert(node, "end", text=name, values=("", "", mod))
         if outcome.left_alone_packs or outcome.left_alone_registries:
-            node = tree.insert("", "end", text=f"Left alone, unticked ({len(outcome.left_alone_packs) + len(outcome.left_alone_registries)})")
+            node = tree.insert("", "end", text=_fmt(
+                "Left alone, unticked (%(n)d)",
+                n=len(outcome.left_alone_packs) + len(outcome.left_alone_registries)))
             for name in outcome.left_alone_packs + [r.rsplit("/", 1)[-1] for r in outcome.left_alone_registries]:
                 tree.insert(node, "end", text=name)
         if outcome.partial:
-            node = tree.insert("", "end", text=f"Partly converted packs ({len(outcome.partial)})",
-                               values=("", "", "right-click a pack: Re-convert adds the rest"))
+            node = tree.insert("", "end", text=_fmt("Partly converted packs (%(n)d)", n=len(outcome.partial)),
+                               values=("", "", _("right-click a pack: Re-convert adds the rest")))
             for p in outcome.partial:
                 item = tree.insert(node, "end", text=p.json_name,
-                                   values=("", "", f"{len(p.missing)} of {p.total} animations in no registry"))
+                                   values=("", "", _fmt("%(missing)d of %(total)d animations in no registry",
+                                                        missing=len(p.missing), total=p.total)))
                 for name in p.missing:
                     tree.insert(item, "end", text=name)
         if outcome.unmatched:
-            node = tree.insert("", "end", text=f"Scenes in the logs that are not installed ({len(outcome.unmatched)})")
+            node = tree.insert("", "end",
+                               text=_fmt("Scenes in the logs that are not installed (%(n)d)", n=len(outcome.unmatched)))
             for name in outcome.unmatched:
                 tree.insert(node, "end", text=name)
         if outcome.problems:
-            node = tree.insert("", "end", open=True, text=f"Problems ({len(outcome.problems)})")
+            node = tree.insert("", "end", open=True, text=_fmt("Problems (%(n)d)", n=len(outcome.problems)))
             for problem in outcome.problems:
                 tree.insert(node, "end", text=problem)
 
@@ -758,25 +854,26 @@ class App:
             self.pending = "run" if "run" in (kind, self.pending) else kind
             return
         if not self.inputs:
-            self.status_var.set("Menu > Options to add your load order.")
+            self.status_var.set(_("Menu > Options to add your load order."))
             return
         if kind == "run":
             out = Path(self.out)
             if not engine.out_is_usable(out):
-                messagebox.showerror("slsbPatcher", f"{out} is not empty and is not an slsbPatcher output.\n\n"
-                                     "Choose another output folder in Menu > Options.")
+                messagebox.showerror("slsbPatcher", _fmt(
+                    "%(out)s is not empty and is not an slsbPatcher output.\n\n"
+                    "Choose another output folder in Menu > Options.", out=out))
                 return
         self._remember()
         options = self._options_for(dry_run=(kind == "preview"))
         key = self._scan_key()
         reuse = None if rescan else (self.scanned if self.scan_key == key else None)
         self.busy = True
-        self.run_button.configure(text="Working...", state="disabled")
+        self.run_button.configure(text=_("Working..."), state="disabled")
         if kind == "run":
             self._set_report("")
-            self.status_var.set("Patching and converting...")
+            self.status_var.set(_("Patching and converting..."))
         else:
-            self.status_var.set("Reading the load order..." if reuse is None else "Previewing...")
+            self.status_var.set(_("Reading the load order...") if reuse is None else _("Previewing..."))
         threading.Thread(target=self._work, args=(kind, options, key, reuse), daemon=True).start()
 
     def _work(self, kind: str, options: engine.Options, key: tuple, reuse: engine.Scan | None) -> None:
@@ -817,13 +914,13 @@ class App:
                         self._after_preview(outcome)
                 elif kind == "error":
                     self._append_report(message[2])
-                    self.status_var.set(f"Failed: {message[1]}")
+                    self.status_var.set(_fmt("Failed: %(error)s", error=message[1]))
                     messagebox.showerror("slsbPatcher", str(message[1]))
                 elif kind == "idle":
                     self.busy = False
                     self.run_button.configure(state="normal")
-                    if self.run_button["text"] == "Working...":
-                        self.run_button.configure(text="Run")
+                    if self.run_button["text"] == _("Working..."):
+                        self.run_button.configure(text=_("Run"))
                     if self.pending:
                         pending, self.pending = self.pending, None
                         self._start(pending)
@@ -833,35 +930,43 @@ class App:
 
     def _after_preview(self, o: engine.Outcome) -> None:
         parts = []
+        # The noun is already inflected by the helpers, so these are one form in both numbers.
         if o.patched:
-            parts.append(f"{_count(len(o.patched), 'registry', 'registries')} to patch")
+            parts.append(_fmt("%(count)s to patch", count=_registries(len(o.patched))))
         if o.would_convert:
-            parts.append(f"{_count(len(o.would_convert), 'pack')} to convert")
+            parts.append(_fmt("%(count)s to convert", count=_packs(len(o.would_convert))))
         left = len(o.left_alone_packs) + len(o.left_alone_registries)
         if left:
-            parts.append(f"{left} left alone")
-        text = "Preview: " + (", ".join(parts) if parts else "nothing to do") + ". Tick or untick, then press Run."
+            parts.append(_fmt("%(n)d left alone", n=left))
+        sentences = [_fmt("Preview: %(parts)s. Tick or untick, then press Run.",
+                          parts=_joined(parts) if parts else _("nothing to do"))]
         if o.problems:
-            text += f" {_count(len(o.problems), 'problem')} in the report."
-        self.status_var.set(text)
-        self.run_button.configure(text="Run" if o.patched or o.would_convert else "Run (nothing to write)")
+            sentences.append(_fmt("%(problems)s in the report.", problems=_problems(len(o.problems))))
+        self.status_var.set(_sentences(sentences))
+        self.run_button.configure(
+            text=_("Run") if o.patched or o.would_convert else _("Run (nothing to write)"))
 
     def _after_run(self, o: engine.Outcome) -> None:
+        # Each sentence below is one msgid; they are set one after another, never cut in two.
         instance = install.mo2()
-        if o.out and instance and o.out.parent == instance.mods.resolve():
-            text = (f"Wrote {_count(o.written, 'file')} to the mod \"{o.out.name}\". Close slsbPatcher so MO2 picks it up"
-                    + (", then run Pandora." if o.converted else ".")
-                    + " Keep your conversion mods enabled: the output holds only the files that changed.")
+        parts = []
+        as_mod = bool(o.out and instance and o.out.parent == instance.mods.resolve())
+        if as_mod:
+            parts.append(_fmt("Wrote %(files)s to the mod \"%(mod)s\". Close slsbPatcher so MO2 picks it up.",
+                              files=_files(o.written), mod=o.out.name))
         elif o.out:
-            text = f"Wrote {_count(o.written, 'file')} to {o.out}. Install that folder as a mod with the highest priority."
-            if o.converted:
-                text += " Then run Pandora."
+            parts.append(_fmt("Wrote %(files)s to %(out)s. Install that folder as a mod with the highest priority.",
+                              files=_files(o.written), out=o.out))
         else:
-            text = "Nothing to write."
+            parts.append(_("Nothing to write."))
+        if o.converted:
+            parts.append(_("Then run Pandora."))
+        if as_mod:
+            parts.append(_("Keep your conversion mods enabled: the output holds only the files that changed."))
         if o.problems:
-            text += f" {_count(len(o.problems), 'problem')} in the report."
-        self.status_var.set(text)
-        self.run_button.configure(text="Done. Run again")
+            parts.append(_fmt("%(problems)s in the report.", problems=_problems(len(o.problems))))
+        self.status_var.set(_sentences(parts))
+        self.run_button.configure(text=_("Done. Run again"))
 
     # ------------------------------------------------------------------ settings
 
@@ -888,7 +993,7 @@ class OptionsDialog(tk.Toplevel):
         super().__init__(app.root, bg=app.colors["bg"])
         self.app = app
         self.result: str | None = None
-        self.title("Options")
+        self.title(_("Options"))
         self.transient(app.root)
         self.resizable(True, True)
         self.inputs = list(app.inputs)
@@ -899,9 +1004,11 @@ class OptionsDialog(tk.Toplevel):
         self.official_var = tk.BooleanVar(value=app.official)
         self.futa_var = tk.BooleanVar(value=app.stricter_futa)
         self.zip_var = tk.BooleanVar(value=app.zip)
+        self.language = app.language
         self.author_var = tk.StringVar(value=app.author)
         self.sb_var = tk.StringVar(value=app.scene_builder)
         self.out_var = tk.StringVar(value=app.out)
+        self.language_var = tk.StringVar(value=self._language_label(self.language))
         self._build()
         self.update_idletasks()
         # As tall as its content, but never taller than the screen: the body scrolls instead.
@@ -928,8 +1035,24 @@ class OptionsDialog(tk.Toplevel):
         c = self.app.colors
         box = tk.Listbox(parent, height=height, bg=c["field"], fg=c["text"], selectbackground=c["select"],
                          selectforeground=c["text"], relief="flat", bd=0, highlightthickness=1,
-                         highlightbackground=c["border"], highlightcolor=c["accent"], font=UI, activestyle="none")
+                         highlightbackground=c["border"], highlightcolor=c["accent"], font=ui_fonts()[0],
+                         activestyle="none")
         return box
+
+    @staticmethod
+    def _language_label(code: str) -> str:
+        """A language's own name for itself, with the code kept so the choice can be read back."""
+        names = {"en": "English", "zh_CN": "简体中文", "zh_TW": "繁體中文"}
+        return names.get(code, code) + " " + code
+
+    def _language_code(self) -> str:
+        return (self.language_var.get() or " ").split(" ")[-1]
+
+    def _language_changed(self, _event=None) -> None:
+        if self._language_code() == self.language:
+            return
+        messagebox.showinfo("slsbPatcher", _("The language takes effect after slsbPatcher is restarted."),
+                            parent=self)
 
     def _build(self) -> None:
         c = self.app.colors
@@ -951,84 +1074,98 @@ class OptionsDialog(tk.Toplevel):
         self.footer = ttk.Frame(self, padding=(14, 8, 14, 12))
         self.footer.grid(row=1, column=0, columnspan=2, sticky="ew")
 
-        frame = ttk.LabelFrame(body, text="Load order", padding=8)
+        frame = ttk.LabelFrame(body, text=_("Load order"), padding=8)
         frame.grid(row=0, column=0, sticky="ew")
         frame.columnconfigure(0, weight=1)
         self.inputs_box = self._listbox(frame, 4)
         self.inputs_box.grid(row=0, column=0, sticky="ew")
         buttons = ttk.Frame(frame)
         buttons.grid(row=0, column=1, sticky="n", padx=(8, 0))
-        for text, command in (("Add folder...", self._add_input), ("Remove", self._remove_input),
-                              ("Move up", lambda: self._move_input(-1)), ("Move down", lambda: self._move_input(1))):
+        for text, command in ((_("Add folder..."), self._add_input), (_("Remove"), self._remove_input),
+                              (_("Move up"), lambda: self._move_input(-1)), (_("Move down"), lambda: self._move_input(1))):
             ttk.Button(buttons, text=text, command=command, width=14).pack(fill="x", pady=(0, 3))
-        ttk.Label(frame, style="Muted.TLabel", wraplength=700, justify="left", text=(
+        ttk.Label(frame, style="Muted.TLabel", wraplength=700, justify="left", text=_(
             "An MO2 instance or profile folder (an instance follows the profile MO2 has selected), a Data folder, "
             "or a folder of extracted SLAL packs. A lower row wins over the rows above it.")).grid(
             row=1, column=0, columnspan=2, sticky="w", pady=(4, 0))
 
-        frame = ttk.LabelFrame(body, text="Extra action logs (besides the ones installed in the load order)", padding=8)
+        frame = ttk.LabelFrame(body, text=_("Extra action logs (besides the ones installed in the load order)"),
+                               padding=8)
         frame.grid(row=1, column=0, sticky="ew", pady=(10, 0))
         frame.columnconfigure(0, weight=1)
         self.logs_box = self._listbox(frame, 3)
         self.logs_box.grid(row=0, column=0, sticky="ew")
         buttons = ttk.Frame(frame)
         buttons.grid(row=0, column=1, sticky="n", padx=(8, 0))
-        for text, command in (("Add file...", self._add_log_file), ("Add folder...", self._add_log_folder),
-                              ("Remove", self._remove_log)):
+        for text, command in ((_("Add file..."), self._add_log_file), (_("Add folder..."), self._add_log_folder),
+                              (_("Remove"), self._remove_log)):
             ttk.Button(buttons, text=text, command=command, width=14).pack(fill="x", pady=(0, 3))
 
-        frame = ttk.LabelFrame(body, text="What to do", padding=8)
+        frame = ttk.LabelFrame(body, text=_("What to do"), padding=8)
         frame.grid(row=2, column=0, sticky="ew", pady=(10, 0))
-        ttk.Checkbutton(frame, text="Patch existing conversions with the ticked action logs (tags only)",
+        ttk.Checkbutton(frame, text=_("Patch existing conversions with the ticked action logs (tags only)"),
                         variable=self.patch_var).pack(anchor="w")
-        ttk.Checkbutton(frame, text="Convert ticked SLAL packs that have no conversion yet",
+        ttk.Checkbutton(frame, text=_("Convert ticked SLAL packs that have no conversion yet"),
                         variable=self.convert_var).pack(anchor="w", pady=(3, 0))
-        ttk.Checkbutton(frame, text="When patching, also apply lines naming P+ official tags (anal, leadin, oral ...) "
-                        "to every stage", variable=self.official_var).pack(anchor="w", pady=(3, 0))
-        ttk.Label(frame, style="Muted.TLabel", wraplength=700, justify="left", text=(
+        ttk.Checkbutton(frame, text=_("When patching, also apply lines naming P+ official tags (anal, leadin, oral ...) "
+                                      "to every stage"), variable=self.official_var).pack(anchor="w", pady=(3, 0))
+        ttk.Label(frame, style="Muted.TLabel", wraplength=700, justify="left", text=_(
             "Official tags are off by default, as in SLATE NG: P+ reads them per stage, so a scene-wide "
             "\"leadin\" makes every stage a lead-in.")).pack(anchor="w", pady=(2, 0))
 
-        frame = ttk.LabelFrame(body, text="Converting", padding=8)
+        frame = ttk.LabelFrame(body, text=_("Converting"), padding=8)
         frame.grid(row=3, column=0, sticky="ew", pady=(10, 0))
         frame.columnconfigure(1, weight=1)
-        ttk.Label(frame, text="Pack author").grid(row=0, column=0, sticky="w")
+        ttk.Label(frame, text=_("Pack author")).grid(row=0, column=0, sticky="w")
         ttk.Entry(frame, textvariable=self.author_var, width=30).grid(row=0, column=1, sticky="w", padx=(8, 0))
-        ttk.Checkbutton(frame, text="Stricter futa (slsb-convert.py -sf: no extra futa flag on strap-on positions)",
+        ttk.Checkbutton(frame, text=_("Stricter futa (slsb-convert.py -sf: no extra futa flag on strap-on positions)"),
                         variable=self.futa_var).grid(row=1, column=0, columnspan=2, sticky="w", pady=(6, 0))
-        ttk.Label(frame, text="Earlier conversions to keep the pack hash and ids from (folders of *.slsb.json; "
-                  "installed ones are found by themselves):").grid(row=2, column=0, columnspan=2, sticky="w", pady=(8, 2))
+        ttk.Label(frame, text=_("Earlier conversions to keep the pack hash and ids from (folders of *.slsb.json; "
+                                "installed ones are found by themselves):")).grid(
+            row=2, column=0, columnspan=2, sticky="w", pady=(8, 2))
         self.update_box = self._listbox(frame, 2)
         self.update_box.grid(row=3, column=0, columnspan=2, sticky="ew")
         buttons = ttk.Frame(frame)
         buttons.grid(row=3, column=2, sticky="n", padx=(8, 0))
-        ttk.Button(buttons, text="Add folder...", command=self._add_update, width=14).pack(fill="x")
-        ttk.Button(buttons, text="Remove", command=self._remove_update, width=14).pack(fill="x", pady=(3, 0))
+        ttk.Button(buttons, text=_("Add folder..."), command=self._add_update, width=14).pack(fill="x")
+        ttk.Button(buttons, text=_("Remove"), command=self._remove_update, width=14).pack(fill="x", pady=(3, 0))
         ttk.Label(frame, text="scene_builder_cli.exe").grid(row=4, column=0, sticky="w", pady=(8, 0))
         ttk.Entry(frame, textvariable=self.sb_var).grid(row=4, column=1, sticky="ew", padx=(8, 0), pady=(8, 0))
-        ttk.Button(frame, text="Browse...", command=self._browse_sb).grid(row=4, column=2, padx=(8, 0), pady=(8, 0))
+        ttk.Button(frame, text=_("Browse..."), command=self._browse_sb).grid(row=4, column=2, padx=(8, 0), pady=(8, 0))
         try:
-            found = f"the bundled one: {scenebuilder.find()}"
+            found = _fmt("the bundled one: %(path)s", path=scenebuilder.find())
         except scenebuilder.SceneBuilderError:
-            found = "none found; converting needs it"
-        ttk.Label(frame, style="Muted.TLabel", text=f"Leave empty for {found}").grid(
+            found = _("none found; converting needs it")
+        ttk.Label(frame, style="Muted.TLabel", text=_fmt("Leave empty for %(what)s", what=found)).grid(
             row=5, column=0, columnspan=3, sticky="w", pady=(2, 0))
 
-        frame = ttk.LabelFrame(body, text="Output", padding=8)
+        frame = ttk.LabelFrame(body, text=_("Output"), padding=8)
         frame.grid(row=4, column=0, sticky="ew", pady=(10, 0))
         frame.columnconfigure(1, weight=1)
-        ttk.Label(frame, text="Folder").grid(row=0, column=0, sticky="w")
+        ttk.Label(frame, text=_("Folder")).grid(row=0, column=0, sticky="w")
         ttk.Entry(frame, textvariable=self.out_var).grid(row=0, column=1, sticky="ew", padx=8)
-        ttk.Button(frame, text="Browse...", command=self._browse_out).grid(row=0, column=2)
-        ttk.Checkbutton(frame, text="Also pack it into a .zip beside the folder", variable=self.zip_var).grid(
+        ttk.Button(frame, text=_("Browse..."), command=self._browse_out).grid(row=0, column=2)
+        ttk.Checkbutton(frame, text=_("Also pack it into a .zip beside the folder"), variable=self.zip_var).grid(
             row=1, column=0, columnspan=3, sticky="w", pady=(6, 0))
-        ttk.Label(frame, style="Muted.TLabel", wraplength=700, justify="left", text=(
-            "The folder is replaced on every run. Installed in MO2, the default is the mod \"slsbPatcher Output\" "
-            "in MO2's mods folder, which MO2 lists once slsbPatcher closes.")).grid(
+        # The mod name is a real folder on disk, so it is filled in rather than translated.
+        ttk.Label(frame, style="Muted.TLabel", wraplength=700, justify="left", text=_fmt(
+            "The folder is replaced on every run. Installed in MO2, the default is the mod \"%(mod)s\" "
+            "in MO2's mods folder, which MO2 lists once slsbPatcher closes.", mod=install.OUTPUT_MOD)).grid(
             row=2, column=0, columnspan=3, sticky="w", pady=(2, 0))
 
-        ttk.Button(self.footer, text="Cancel", command=self.destroy, width=12).pack(side="right")
-        ttk.Button(self.footer, text="OK", command=self._ok, width=12).pack(side="right", padx=(0, 6))
+        frame = ttk.LabelFrame(body, text=_("Interface"), padding=8)
+        frame.grid(row=5, column=0, sticky="ew", pady=(10, 0))
+        ttk.Label(frame, text=_("Language")).grid(row=0, column=0, sticky="w")
+        self.language_box = ttk.Combobox(frame, textvariable=self.language_var, state="readonly", width=26,
+                                        values=[self._language_label(code) for code in i18n.available()])
+        self.language_box.grid(row=0, column=1, sticky="w", padx=(8, 0))
+        self.language_box.bind("<<ComboboxSelected>>", self._language_changed)
+        ttk.Label(frame, style="Muted.TLabel", wraplength=700, justify="left",
+                  text=_("Restart slsbPatcher for a new language to take effect.")).grid(
+            row=1, column=0, columnspan=2, sticky="w", pady=(4, 0))
+
+        ttk.Button(self.footer, text=_("Cancel"), command=self.destroy, width=12).pack(side="right")
+        ttk.Button(self.footer, text=_("OK"), command=self._ok, width=12).pack(side="right", padx=(0, 6))
         self._fill()
 
     def _fill(self) -> None:
@@ -1048,9 +1185,11 @@ class OptionsDialog(tk.Toplevel):
 
     def _add_input(self) -> None:
         instance = install.mo2()
-        folder = filedialog.askdirectory(parent=self, title="An MO2 instance or profile folder, a Data folder, or a folder of SLAL packs",
-                                         initialdir=self._start_dir(instance.folder if instance else None,
-                                                                    self.inputs[-1].parent if self.inputs else None))
+        folder = filedialog.askdirectory(
+            parent=self,
+            title=_("An MO2 instance or profile folder, a Data folder, or a folder of SLAL packs"),
+            initialdir=self._start_dir(instance.folder if instance else None,
+                                       self.inputs[-1].parent if self.inputs else None))
         if folder:
             self.inputs.append(Path(folder))
             self._fill()
@@ -1075,22 +1214,26 @@ class OptionsDialog(tk.Toplevel):
                                self.inputs[-1] if self.inputs else None)
 
     def _add_log_file(self) -> None:
-        for file in filedialog.askopenfilenames(parent=self, title="SLATE action logs", filetypes=[("SLATE action log", "*.json")],
+        for file in filedialog.askopenfilenames(parent=self, title=_("SLATE action logs"),
+                                                filetypes=[(_("SLATE action log"), "*.json")],
                                                 initialdir=self._logs_dir()):
             if Path(file) not in self.logs:
                 self.logs.append(Path(file))
         self._fill()
 
     def _add_log_folder(self) -> None:
-        folder = filedialog.askdirectory(parent=self, title="A folder of SLATE action logs", initialdir=self._logs_dir())
+        folder = filedialog.askdirectory(parent=self, title=_("A folder of SLATE action logs"),
+                                         initialdir=self._logs_dir())
         if not folder:
             return
-        found, _ = engine.read_extra_logs([Path(folder)])
+        # not "found, _": that makes _ a local name, and the _() above would raise UnboundLocalError
+        found, _problems = engine.read_extra_logs([Path(folder)])
         for f in found:
             if f.path not in self.logs:
                 self.logs.append(f.path)
         if not found:
-            messagebox.showinfo("slsbPatcher", "That folder has no file with a slate.actionlog list.", parent=self)
+            messagebox.showinfo("slsbPatcher", _("That folder has no file with a slate.actionlog list."),
+                                parent=self)
         self._fill()
 
     def _remove_log(self) -> None:
@@ -1101,9 +1244,10 @@ class OptionsDialog(tk.Toplevel):
 
     def _add_update(self) -> None:
         instance = install.mo2()
-        folder = filedialog.askdirectory(parent=self, title="A folder of *.slsb.json from an earlier conversion",
-                                         initialdir=self._start_dir(self.update_dirs[-1] if self.update_dirs else None,
-                                                                    instance.mods if instance else None))
+        folder = filedialog.askdirectory(
+            parent=self, title=_("A folder of *.slsb.json from an earlier conversion"),
+            initialdir=self._start_dir(self.update_dirs[-1] if self.update_dirs else None,
+                                       instance.mods if instance else None))
         if folder:
             self.update_dirs.append(Path(folder))
             self._fill()
@@ -1115,17 +1259,19 @@ class OptionsDialog(tk.Toplevel):
             self._fill()
 
     def _browse_sb(self) -> None:
-        file = filedialog.askopenfilename(parent=self, title="scene_builder_cli.exe", filetypes=[("Program", "*.exe"), ("All", "*")],
-                                          initialdir=self._start_dir(Path(self.sb_var.get()).parent if self.sb_var.get() else None,
-                                                                     install.tool_folder()))
+        file = filedialog.askopenfilename(
+            parent=self, title="scene_builder_cli.exe",
+            filetypes=[(_("Program"), "*.exe"), (_("All"), "*")],
+            initialdir=self._start_dir(Path(self.sb_var.get()).parent if self.sb_var.get() else None,
+                                       install.tool_folder()))
         if file:
             self.sb_var.set(file)
 
     def _browse_out(self) -> None:
         current = Path(self.out_var.get().strip()) if self.out_var.get().strip() else None
-        folder = filedialog.askdirectory(parent=self, title="Output folder (replaced on every run)", mustexist=False,
-                                         initialdir=self._start_dir(current, current.parent if current else None,
-                                                                    install.default_out().parent))
+        folder = filedialog.askdirectory(
+            parent=self, title=_("Output folder (replaced on every run)"), mustexist=False,
+            initialdir=self._start_dir(current, current.parent if current else None, install.default_out().parent))
         if folder:
             self.out_var.set(folder)
 
@@ -1141,6 +1287,9 @@ class OptionsDialog(tk.Toplevel):
         app.patch, app.convert, app.official = self.patch_var.get(), self.convert_var.get(), self.official_var.get()
         app.stricter_futa, app.zip, app.author = self.futa_var.get(), self.zip_var.get(), self.author_var.get()
         app.scene_builder, app.out = self.sb_var.get(), self.out_var.get().strip() or str(install.default_out())
+        chosen = self._language_code()
+        if chosen and chosen != app.language:  # read back by i18n.resolve_language on the next start
+            app.settings["language"] = chosen
         app._remember()
         self.result = "scan" if rescan else ("preview" if changed else None)
         self.destroy()
@@ -1149,6 +1298,12 @@ class OptionsDialog(tk.Toplevel):
 def launch(inputs: list[Path] | None = None) -> int:
     if sys.stdout is None:  # a windowed exe has no console to print to
         sys.stdout = sys.stderr = open(os.devnull, "w")
+    # Before tk.Tk(): a widget takes its text when it is built, so the catalog has to be in
+    # place first. resolve_language() reads the setting itself, so no separate load is needed.
+    try:
+        i18n.install_locale(i18n.resolve_language())
+    except Exception as error:  # a broken catalog must never keep the window shut
+        logging.getLogger(__name__).warning("no translations: %s", error)
     runlog.start("window")
     if os.name == "nt":
         try:

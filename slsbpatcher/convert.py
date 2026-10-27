@@ -22,9 +22,11 @@ import shutil
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from . import scenebuilder
+from . import i18n, scenebuilder
 from .gamedata import GameData, Layer, Winner
 from .vendor import slsb_convert as sc
+
+_ = i18n._
 
 log = logging.getLogger("slsbpatcher")
 
@@ -199,7 +201,8 @@ def run(jobs: list[Job], data: GameData, work: Path, exe: Path, previous: dict[s
         module = work / "stage" / f"{index:03d}"
         module_out = work / "out" / f"{index:03d}"
         try:
-            log.info("converting %s: %s", job.layer.name, ", ".join(w.path.name for w in job.jsons))
+            log.info(_("converting %(mod)s: %(jsons)s") % {
+                "mod": job.layer.name, "jsons": ", ".join(w.path.name for w in job.jsons)})
             shutil.rmtree(temp_dir, ignore_errors=True)
             (temp_dir / "edited").mkdir(parents=True)
             staged = _stage(job, data, module)
@@ -212,7 +215,7 @@ def run(jobs: list[Job], data: GameData, work: Path, exe: Path, previous: dict[s
             sc.PackageProcessor.edit_slsb_json()
             kept = _keep_stage_ids(temp_dir / "edited", previous)
             if kept:
-                log.info("  kept %d stage ids of the earlier conversion", kept)
+                log.info(_("  kept %(n)d stage ids of the earlier conversion") % {"n": kept})
 
             registry = module_out / "SKSE" / "SexLab" / "Registry"
             module_out.mkdir(parents=True, exist_ok=True)
@@ -246,12 +249,14 @@ def run(jobs: list[Job], data: GameData, work: Path, exe: Path, previous: dict[s
             for path in sorted(p for p in module_out.rglob("*") if p.is_file()):
                 rel = path.relative_to(module_out).as_posix()
                 if rel.lower() in taken:
-                    result.errors.append(f"{job.layer.name}: {rel} is also produced by another pack; kept the first one")
+                    result.errors.append(_("%(mod)s: %(rel)s is also produced by another pack; kept the first one")
+                                         % {"mod": job.layer.name, "rel": rel})
                     continue
                 result.files[rel] = path
         except Exception as error:  # one broken pack must not stop the others
             log.debug("conversion failed", exc_info=True)
-            result.errors.append(f"{job.layer.name}: conversion failed: {error}")
+            result.errors.append(_("%(mod)s: conversion failed: %(error)s")
+                                 % {"mod": job.layer.name, "error": error})
         finally:
             sc.StoredData.reset_stored_data()
     shutil.rmtree(temp_dir, ignore_errors=True)
